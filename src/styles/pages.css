@@ -1,0 +1,461 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+
+.fullPage {
+    width: 980px;
+    background-color: #E0FFFF;
+    box-shadow: 6px 6px 20px rgb(0 0 0 / 10%);
+}
+
+.fullPage__name {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #ADD8E6;
+}
+
+.enterpr__edit-btn {
+    margin: 20px 0 0 30px !important;
+}
+
+.enterpr__add-btn {
+    margin: 20px 0 30px 30px !important;
+}
+
+.rowInfo {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid gray;
+    width: 100%;
+}
+
+.rowInfo__fieldName {
+    width: 320px;
+}
+
+.rowInfo__fieldValue {
+    width: 100%;
+}
+
+.block-header {
+    margin: 20px auto;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+.block-header,
+.list-header {
+    text-align: center;
+    color: #000080;
+}
+
+.rowInfo__humanName {
+    width: 480px;
+}
+
+.rowInfo__humanState {
+    width: 100%;
+    text-align: center;
+}
+
+.rowFounderE {
+    margin-bottom: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid gray;
+}
+
+.rowFounderE__entr-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rowFounderE__one-row {
+    display: flex;
+}
+
+.rowFounderE__row-name {
+    width: 150px;
+}
+
+.license-item {
+    text-align: center;
+}
+
+.license-item__kateg {
+    width: 70px;
+}
+
+.license-item__number {
+    width: 130px;
+    margin-left: 5px;
+}
+
+.license-item__date {
+    width: 120px;
+    margin-left: 5px;
+}
+
+.license-item__state {
+    width: 200px;
+    margin-left: 20px;
+}
+
+.list-item {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid gray;
+}
+
+.list-item__visible {
+    display: flex;
+}
+
+.list-item__visible-data {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.list-item__switch {
+    margin: 0 12px;
+    color: #000080;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.list-item__obj-type {
+    width: 300px;
+}
+
+.list-item__address {
+    margin-left: 5px;
+    width: 460px;
+}
+
+.list-item__date {
+    width: 190px;
+}
+
+.list-item__date-info {
+    width: 90px;
+    margin-left: 5px;
+    text-align: right;
+}
+
+.list-item__checkbox {
+    display: none;
+}
+
+.list-item__invisible {
+    background-color: #cfe8e8;
+    font-size: 14px;
+    padding-left: 15px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 1s;
+}
+
+.list-item__checkbox:checked+div {
+    max-height: 180px;
+}
+
+.check-header {
+    text-align: center;
+    color: #000080;
+    justify-content: space-between;
+}
+
+.rowInfo__check-type {
+    width: 400px;
+}
+
+.rowInfo__check-doc {
+    width: 280px;
+    text-align: center;
+    margin-left: 5px;
+}
+
+.rowInfo__checker {
+    width: 150px;
+    margin-left: 5px;
+}
+
+.fullPage__person-info {
+    padding: 15px;
+}
+
+.fullPage__person-details {
+    display: flex;
+    gap: 10px;
+}
+
+.fullPage__person-foto,
+.fullPage__person-foto__big,
+.fullPage__person-foto__small {
+    height: 200px;
+    border: 1px solid black;
+}
+
+.fullPage__person-foto__small {
+    display: none;
+}
+
+.person-header {
+    margin: 35px 0 10px;
+    text-align: center;
+}
+
+.person-foto__edit,
+.person-posada__edit {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.person-foto__edit {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+/* Profile */
+.profile_root {
+    width: 100%;
+    max-width: 700px;
+    padding: 30px;
+    border: 1px solid #dedede;
+    margin: 10px auto;
+}
+
+.profile_title {
+    text-align: center !important;
+    font-weight: bold !important;
+    margin-bottom: 30px !important;
+}
+
+/* Error page */
+.error-page h1 {
+    margin: 80px 20px;
+    text-align: center;
+}
+
+.error-page h3 {
+    margin: 0 30px;
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .profile_root {
+        padding: 30px;
+    }
+
+    .profile_title {
+        font-size: 24px !important;
+    }
+
+    .person-posada__edit {
+        flex-wrap: wrap;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .fullPage {
+        width: 760px;
+    }
+
+    .list-item__obj-type {
+        width: 220px;
+    }
+
+    .list-item__address {
+        width: 340px;
+    }
+
+    .rowInfo__check-type {
+        width: 300px;
+    }
+
+    .rowInfo__check-doc {
+        width: 200px;
+    }
+
+    .rowInfo__checker {
+        width: 150px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .fullPage {
+        width: 100%;
+    }
+
+    .rowInfo__fieldName {
+        width: 280px;
+    }
+
+    .block-header {
+        font-size: 20px;
+    }
+
+    .rowInfo__humanName {
+        width: 280px;
+    }
+
+    .license-item,
+    .list-item {
+        font-size: 14px;
+    }
+
+    .license-item__kateg {
+        width: 60px;
+    }
+
+    .license-item__number {
+        width: 120px;
+    }
+
+    .license-item__date {
+        width: 110px;
+    }
+
+    .license-item__state {
+        margin-left: 14px;
+        width: 160px;
+    }
+
+    .list-item__obj-type {
+        width: 150px;
+    }
+
+    .list-item__address {
+        width: fit-content;
+    }
+
+    .list-item__invisible {
+        font-size: 12px;
+    }
+
+    .rowInfo__check-type {
+        width: 230px;
+    }
+
+    .rowInfo__check-doc {
+        width: fit-content;
+    }
+
+    .rowInfo__checker {
+        width: 140px;
+    }
+
+    .fullPage__person-foto__big {
+        display: none;
+    }
+
+    .fullPage__person-foto__small {
+        display: block;
+        height: 300px;
+        margin: 0 auto 10px;
+    }
+}
+
+@media (min-width: 481px) {
+    .rowInfo__buttons {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .fullPage {
+        width: 100%;
+    }
+
+    .fullPage__name {
+        font-size: 24px;
+    }
+
+    .rowInfo,
+    .rowFounderE {
+        font-size: 14px;
+    }
+
+    .rowInfo__fieldName {
+        width: 220px;
+    }
+
+    .block-header {
+        font-size: 18px;
+    }
+
+    .rowInfo__humanName {
+        width: 250px;
+    }
+
+    .license-item,
+    .list-item {
+        font-size: 12px;
+    }
+
+    .license-item__kateg {
+        width: 50px;
+    }
+
+    .license-item__number {
+        width: 110px;
+    }
+
+    .license-item__date {
+        width: 100px;
+    }
+
+    .license-item__state {
+        margin-left: 10px;
+        width: 100px;
+    }
+
+    .list-item__switch {
+        margin: 0 6px;
+    }
+
+    .list-item__obj-type {
+        width: fit-content;
+    }
+
+    .list-item__address {
+        width: fit-content;
+    }
+
+    .list-item__date-info {
+        width: 70px;
+    }
+
+    .list-item__invisible {
+        font-size: 10px;
+    }
+
+    .rowInfo__check-type {
+        width: 120px;
+    }
+
+    .rowInfo__check-doc {
+        width: 90px;
+    }
+
+    .rowInfo__checker {
+        width: 100px;
+    }
+
+    .fullPage__person-foto__big {
+        display: none;
+    }
+
+    .fullPage__person-foto__small {
+        display: block;
+        margin: 0 auto 10px;
+    }
+}

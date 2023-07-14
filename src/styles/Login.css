@@ -1,0 +1,23 @@
+.login_root {
+  width: 400px;
+  padding: 50px;
+  border: 1px solid #dedede;
+  margin: 50px auto;
+}
+
+.login_field {
+  margin-bottom: 20px !important;
+}
+
+.login_title {
+  text-align: center !important;
+  font-weight: bold !important;
+  margin-bottom: 30px !important;
+}
+
+@media (max-width: 767px) {
+  .login_root {
+    width: 300px;
+    padding: 30px;
+  }
+}

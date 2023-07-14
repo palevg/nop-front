@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+}
+
+a, .menu-link:hover {
+    text-decoration: none;
+}
+
+.menu-link {
+    color: inherit;
+}
+
+a:hover,
+a:active {
+    text-decoration: underline;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* *** Home page *** */
+.home {
+    max-width: 1100px;
+    margin: 100px 10px 0 10px;
+    text-align: center;
+}
+
+.home__items {
+    margin-top: 80px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.home__items a,
+.home__items a:hover {
+    text-decoration: none;
+    color: #000080;
+}
+
+.home__item {
+    font-weight: 600;
+    font-size: 18px;
+    background-color: #E0FFFF;
+    height: 200px;
+    width: 250px;
+    border-radius: 10px;
+    box-shadow: 6px 6px 20px rgb(0 0 0 / 10%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s;
+}
+
+.home__item:hover {
+    transform: scale(1.1);
+    transition: all 0.5s;
+}
+
+/* *** About page *** */
+.home__about {
+    margin-top: 40px;
+}
+
+/* *** Pages with list *** */
+.list-page {
+    width: 980px;
+}
+
+.page-header__text {
+    text-align: center;
+    color: #000080;
+    margin: 10px 0;
+}
+
+.info_message {
+    text-align: center;
+    color: #000080;
+    margin-top: 50px;
+}
+
+/* *** Enterprises page *** */
+.enterpr__add {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.enterpr__filter {
+    margin-top: 5px;
+    text-align: right;
+}
+
+.enterpr__header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    padding: 5px 15px;
+}
+
+.enterpr__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+    border-top: 1px solid black;
+}
+
+/* *** Peoples page *** */
+.searching-form {
+    width: 300px;
+}
+
+.searching-form__text {
+    margin-bottom: 20px !important;
+}
+
+.search-header {
+    margin-top: 5px;
+    display: flex;
+    gap: 10px;
+    background-color: #f8f8f8;
+}
+
+.search-header div {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.peoples-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.person-item__name {
+    width: 40%;
+    font-weight: 600;
+}
+
+.person-item__id {
+    width: 120px;
+}
+
+.person-item__birth {
+    width: 100px;
+}
+
+.person-item__adr {
+    width: 60%;
+}
+
+.person-item__name,
+.person-item__id,
+.person-item__birth,
+.person-item__adr {
+    padding: 5px;
+    border-bottom: 1px solid black;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .list-page {
+        width: 100%;
+        padding: 0 10px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .home {
+        margin-top: 80px;
+    }
+    .home__items {
+        margin-top: 70px;
+    }
+    .home__item {
+        font-size: 16px;
+        height: 180px;
+        width: 230px;
+    }
+    .list-page {
+        width: 100%;
+        padding: 0 10px;
+    }
+    .person-item__name {
+        width: 70%;
+    }
+    .person-item__id {
+        width: 90px;
+    }
+    .person-item__birth {
+        width: 80px;
+    }
+    .person-item__adr {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .home {
+        margin-top: 50px;
+    }
+    .home h1,
+    .page-header__text {
+        font-size: 24px;
+    }
+    .home__items {
+        display: block;
+        margin-top: 50px;
+    }
+    .home__item {
+        font-size: 16px;
+        height: 120px;
+        width: 230px;
+        margin: 0 auto 20px;
+    }
+    .list-page {
+        width: 100%;
+        padding: 0 4px;
+    }
+    .peoples-table {
+        font-size: 14px;
+    }
+    .person-item__name {
+        width: 70%;
+    }
+    .person-item__id {
+        width: 70px;
+    }
+    .person-item__birth {
+        width: 60px;
+    }
+    .person-item__adr {
+        display: none;
+    }
+}
