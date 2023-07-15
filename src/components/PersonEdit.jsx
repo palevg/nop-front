@@ -79,22 +79,33 @@ export const PersonEdit = (props) => {
   }
 
   const onSubmit = async (values) => {
-    if (props.isNewPerson) {
-      alert('Save new person!');
-      props.updateEditing(null);
-    } else
-      if (isDataChanged()) {
+    if (isDataChanged()) {
+      values.editor = props.editor;
+      if (values.foto !== fotoUrl) values.foto = fotoUrl;
+
+      let linkToPatch, linkToReload;
+      if (props.personType === 1) {
+        props.isNewPerson ? linkToPatch = "/peoples/newfounder" : linkToPatch = "/peoples/editfounder";
+        linkToReload = "/founders/";
+      }
+      if (props.personType === 2) {
+        props.isNewPerson ? linkToPatch = "/peoples/newhead" : linkToPatch = "/peoples/edithead";
+        linkToReload = "/heads/";
+        if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
+      }
+
+      if (props.isNewPerson) {
+        values.enterpr = props.person.Enterpr;
+        await axios.post(linkToPatch, values)
+          .then(res => {
+            alert(res.data);
+          })
+          .catch(err => {
+            alert(err.response.data);
+          });
+      } else {
         values.id = props.person.Id;
         values.humanId = props.person.HumanId;
-        values.editor = props.editor.Id;
-        if (values.foto !== fotoUrl) values.foto = fotoUrl;
-
-        let linkToPatch;
-        if (props.personType === 1) linkToPatch = "/peoples/founder";
-        if (props.personType === 2) {
-          linkToPatch = "/peoples/head";
-          if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
-        }
         await axios.patch(linkToPatch, values)
           .then(res => {
             alert(res.data);
@@ -102,11 +113,19 @@ export const PersonEdit = (props) => {
           .catch(err => {
             alert(err.response.data);
           });
-        props.updateEditing(null);
-      } else {
-        window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
-        props.updateEditing(null);
       }
+      await axios.get(linkToReload + props.person.Enterpr)
+        .then(res => {
+          props.updateList(res.data);
+        })
+        .catch(err => {
+          alert(err.response.data);
+        });
+      props.updateEditing(null);
+    } else {
+      window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
+      props.updateEditing(null);
+    }
   };
 
   const handleCancelClick = () => {

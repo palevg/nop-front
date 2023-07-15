@@ -11,9 +11,7 @@ export const HeadsList = (props) => {
   const personType = props.sequr ? 3 : props.role ? 2 : 1;
   const { currentUser } = React.useContext(AuthContext);
   const [editPerson, setEditPerson] = React.useState(null);
-  const updateEditing = (value) => {
-    setEditPerson(value);
-  }
+  const updateEditing = (value) => { setEditPerson(value); }
 
   const handleEdit = row => {
     setEditPerson(row);
@@ -64,7 +62,7 @@ export const HeadsList = (props) => {
                   <EditNoteIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title={props.active ? "Звільнити з посади" : "Вивести зі складу засновників"}>
+              <Tooltip title={props.role ? "Звільнити з посади" : "Вивести зі складу засновників"}>
                 <IconButton size="small" color="primary" aria-label="delete" onClick={handleFire.bind(null, item)}>
                   <WorkOffIcon fontSize="inherit" />
                 </IconButton>
@@ -76,8 +74,9 @@ export const HeadsList = (props) => {
         person={editPerson}
         personType={personType}
         updateEditing={updateEditing}
+        // updateList={updateHeadsList}
         isNewPerson={false}
-        editor={currentUser} />
+        editor={currentUser.Id} />
       }
     </div>
   )

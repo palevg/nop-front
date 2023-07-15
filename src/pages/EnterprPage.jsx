@@ -79,22 +79,24 @@ const EnterprPage = () => {
   const [checkings, setCheckings] = useState([]);
   const [editPerson, setEditPerson] = useState(null);
   const updateEditing = (value) => { setEditPerson(value); }
+  const updateHeadsList = (value) => { setHeads(value); }
 
   let newPersonData = {
-    fullName: '',
-    indnum: '',
-    birthDate: '',
-    birthPlace: '',
-    livePlace: '',
-    pasport: '',
-    paspDate: '',
-    paspPlace: '',
-    osvita: '',
-    foto: '',
-    statutPart: '',
-    dateEnter: '',
-    posada: '',
-    dateStartWork: ''
+    Name: '',
+    Indnum: null,
+    Birth: null,
+    BirthPlace: null,
+    LivePlace: null,
+    Pasport: null,
+    PaspDate: null,
+    PaspPlace: null,
+    Osvita: null,
+    PhotoFile: null,
+    Enterpr: params.id,
+    StatutPart: null,
+    DateEnter: null,
+    Posada: null,
+    DateStartWork: null
   }
 
   const [fetchFirmaById, isLoading] = useFetching(async (id) => {
@@ -279,8 +281,9 @@ const EnterprPage = () => {
               person={editPerson}
               personType={2}
               updateEditing={updateEditing}
+              updateList={updateHeadsList}
               isNewPerson={true}
-              editor={currentUser} />
+              editor={currentUser.Id} />
             }
             {heads.filter(heads => heads.State === 1).length > 0 && <FormControlLabel
               label="показати попередніх керівників"
