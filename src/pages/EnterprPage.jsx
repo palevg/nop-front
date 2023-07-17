@@ -80,6 +80,7 @@ const EnterprPage = () => {
   const [editPerson, setEditPerson] = useState(null);
   const updateEditing = (value) => { setEditPerson(value); }
   const updateHeadsList = (value) => { setHeads(value); }
+  const updateFoundersList = (value) => { setFounders(value); }
 
   let newPersonData = {
     Name: '',
@@ -92,7 +93,7 @@ const EnterprPage = () => {
     PaspPlace: null,
     Osvita: null,
     PhotoFile: null,
-    Enterpr: params.id,
+    Enterprise: params.id,
     StatutPart: null,
     DateEnter: null,
     Posada: null,
@@ -198,13 +199,13 @@ const EnterprPage = () => {
               scrollButtons="auto"
               aria-label="scrollable auto tabs example"
             >
-              <Tab label="ЗАГАЛЬНЕ" {...a11yProps(0)} />
-              <Tab label="ЗАСНОВНИКИ" {...a11yProps(1)} />
-              <Tab label="КЕРІВНИКИ" {...a11yProps(2)} />
-              <Tab label="ЛІЦЕНЗІЇ" {...a11yProps(3)} />
-              <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} {...a11yProps(4)} />
-              <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} {...a11yProps(5)} />
-              <Tab label={"ПЕРЕВІРКИ (" + checkings.length + ")"} {...a11yProps(6)} />
+              <Tab label="ЗАГАЛЬНЕ" disabled={Boolean(editPerson && value !== 0)} {...a11yProps(0)} />
+              <Tab label="ЗАСНОВНИКИ" disabled={Boolean(editPerson && value !== 1)} {...a11yProps(1)} />
+              <Tab label="КЕРІВНИКИ" disabled={Boolean(editPerson && value !== 2)} {...a11yProps(2)} />
+              <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean(editPerson && value !== 3)} {...a11yProps(3)} />
+              <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} disabled={Boolean(editPerson && value !== 4)} {...a11yProps(4)} />
+              <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} disabled={Boolean(editPerson && value !== 5)} {...a11yProps(5)} />
+              <Tab label={"ПЕРЕВІРКИ (" + checkings.length + ")"} disabled={Boolean(editPerson && value !== 6)} {...a11yProps(6)} />
             </Tabs>
           </AppBar>
           <TabPanel value={value} index={0}>
@@ -237,12 +238,21 @@ const EnterprPage = () => {
             {founders.filter(founders => founders.State === 0).length > 0
               ? <div>
                 <div className="block-header">Засновники - фізичні особи:</div>
-                <HeadsList source={founders.filter(heads => heads.State === 0)} role={false} active={true} sequr={false} buttons={true} />
+                <HeadsList source={founders.filter(heads => heads.State === 0)} role={false} active={true} sequr={false} buttons={true} updateList={updateFoundersList} />
               </div>
               : <div className="block-header">Фізичних осіб у складі засновників немає</div>
             }
-            {currentUser.acc > 1 &&
-              <div><Button className="enterpr__add-btn" variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - фізичну особу</Button></div>}
+            {currentUser.acc > 1 && editPerson === null && <div>
+              <Button className="enterpr__add-btn" onClick={() => setEditPerson(newPersonData)} variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - фізичну особу</Button>
+            </div>}
+            {editPerson !== null && <PersonEdit
+              person={editPerson}
+              personType={1}
+              updateEditing={updateEditing}
+              updateList={updateFoundersList}
+              isNewPerson={true}
+              editor={currentUser.Id} />
+            }
             {founders.filter(founders => founders.State === 1).length > 0 && <FormControlLabel
               label="показати попередніх засновників - фізичних осіб"
               control={<Switch
@@ -258,8 +268,9 @@ const EnterprPage = () => {
               </div>
               : <div className="block-header">Юридичних осіб у складі засновників немає</div>
             }
-            {currentUser.acc > 1 &&
-              <div><Button className="enterpr__add-btn" variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - юридичну особу</Button></div>}
+            {currentUser.acc > 1 && <div>
+              <Button className="enterpr__add-btn" variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - юридичну особу</Button>
+            </div>}
             {foundersE.filter(foundersE => foundersE.State === 1).length > 0 && <FormControlLabel
               label="показати попередніх засновників - юридичних осіб"
               control={<Switch
@@ -271,10 +282,10 @@ const EnterprPage = () => {
           </TabPanel>
           <TabPanel value={value} index={2}>
             {heads.filter(heads => heads.State === 0).length > 0
-              ? <HeadsList source={heads.filter(heads => heads.State === 0)} role={true} active={true} sequr={false} buttons={true} />
+              ? <HeadsList source={heads.filter(heads => heads.State === 0)} role={true} active={true} sequr={false} buttons={true} updateList={updateHeadsList} />
               : <div className="block-header">Керівників у підприємства на даний час немає</div>
             }
-            {currentUser.acc > 1 && <div>
+            {currentUser.acc > 1 && editPerson === null && <div>
               <Button className="enterpr__add-btn" onClick={() => setEditPerson(newPersonData)} variant="contained" startIcon={<AddIcon />}>Додати нового керівника</Button>
             </div>}
             {editPerson !== null && <PersonEdit

@@ -62,7 +62,7 @@ export const PersonEdit = (props) => {
 
   const isDataChanged = () => {
     const values = getValues();
-    if (posada !== undefined && posada.name !== undefined) values.posada = posada.name;
+    if (props.personType === 2 && posada !== null && posada.name !== undefined) values.posada = posada.name;
     if (values.osvita === '') values.osvita = null;
     let dataNotChanged = false;
     if ((checkDate(values.dateEnter, '') === checkDate(props.person.DateEnter, '') || values.dateEnter === checkDate(props.person.DateEnter, '')) &&
@@ -76,6 +76,19 @@ export const PersonEdit = (props) => {
       values.paspPlace === props.person.PaspPlace && values.osvita === props.person.Osvita && values.foto === fotoUrl)
       return false
     else return true;
+  }
+
+  const checkName = async () => {
+    const values = getValues();
+    await axios.get('/peoples/with/' + values.fullName)
+      .then(res => {
+        if (res.data.length) console.log(res.data)
+        else console.log('continue editing')
+      })
+      .catch(err => {
+        alert(err.response.data);
+      });
+    // console.log(values.fullName);
   }
 
   const onSubmit = async (values) => {
@@ -95,7 +108,7 @@ export const PersonEdit = (props) => {
       }
 
       if (props.isNewPerson) {
-        values.enterpr = props.person.Enterpr;
+        values.enterpr = props.person.Enterprise;
         await axios.post(linkToPatch, values)
           .then(res => {
             alert(res.data);
@@ -114,7 +127,7 @@ export const PersonEdit = (props) => {
             alert(err.response.data);
           });
       }
-      await axios.get(linkToReload + props.person.Enterpr)
+      await axios.get(linkToReload + props.person.Enterprise)
         .then(res => {
           props.updateList(res.data);
         })
@@ -198,7 +211,7 @@ export const PersonEdit = (props) => {
             return option.name;
           }}
           renderOption={(props, option) => <li {...props}>{option.name}</li>}
-          renderInput={(params) => <TextField {...params} label="Посада" />}
+          renderInput={(params) => <TextField {...params} {...register('posada', { required: 'Вкажіть посаду' })} label="Посада" />}
           size="small"
         />
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
@@ -218,6 +231,7 @@ export const PersonEdit = (props) => {
         error={Boolean(errors.fullName?.message)}
         helperText={errors.fullName?.message}
         {...register('fullName', {
+          onBlur: () => { props.isNewPerson && checkName() },
           pattern: {
             value: /^[А-їІЇЄ'\s\-]{8,50}$/,
             message: "Лише букви кирилиці, апостроф та дефіс (мінімум 8 символів)"

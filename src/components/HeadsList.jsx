@@ -74,7 +74,7 @@ export const HeadsList = (props) => {
         person={editPerson}
         personType={personType}
         updateEditing={updateEditing}
-        // updateList={updateHeadsList}
+        updateList={props.updateList}
         isNewPerson={false}
         editor={currentUser.Id} />
       }
