@@ -238,7 +238,7 @@ const EnterprPage = () => {
             {founders.filter(founders => founders.State === 0).length > 0
               ? <div>
                 <div className="block-header">Засновники - фізичні особи:</div>
-                <HeadsList source={founders.filter(heads => heads.State === 0)} role={false} active={true} sequr={false} buttons={true} updateList={updateFoundersList} />
+                <HeadsList source={founders.filter(founders => founders.State === 0)} role={false} active={true} sequr={false} buttons={true} updateList={updateFoundersList} />
               </div>
               : <div className="block-header">Фізичних осіб у складі засновників немає</div>
             }
@@ -250,7 +250,7 @@ const EnterprPage = () => {
               personType={1}
               updateEditing={updateEditing}
               updateList={updateFoundersList}
-              isNewPerson={true}
+              isNewPerson={{ person: true, place: true }}
               editor={currentUser.Id} />
             }
             {founders.filter(founders => founders.State === 1).length > 0 && <FormControlLabel
@@ -293,7 +293,7 @@ const EnterprPage = () => {
               personType={2}
               updateEditing={updateEditing}
               updateList={updateHeadsList}
-              isNewPerson={true}
+              isNewPerson={{ person: true, place: true }}
               editor={currentUser.Id} />
             }
             {heads.filter(heads => heads.State === 1).length > 0 && <FormControlLabel
