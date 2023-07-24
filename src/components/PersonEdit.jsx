@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate } from "../utils/checkers";
 import { useForm } from 'react-hook-form';
-import { Paper, TextField, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, RadioGroup, Radio, FormControlLabel, Alert, AlertTitle } from "@mui/material";
+import { Paper, TextField, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, RadioGroup, Radio, FormControlLabel, Checkbox, Alert, AlertTitle } from "@mui/material";
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -46,7 +46,9 @@ export const PersonEdit = (props) => {
       statutPart: props.person.StatutPart,
       dateEnter: checkDate(props.person.DateEnter, ''),
       posada: props.person.Posada,
-      dateStartWork: checkDate(props.person.DateStartWork, '')
+      dateStartWork: checkDate(props.person.DateStartWork, ''),
+      inCombination: Boolean(props.person.InCombination),
+      sequrBoss: Boolean(props.person.SequrBoss)
     },
     mode: 'onChange'
   });
@@ -74,7 +76,8 @@ export const PersonEdit = (props) => {
     if ((checkDate(values.dateEnter, '') === checkDate(props.person.DateEnter, '') || values.dateEnter === checkDate(props.person.DateEnter, '')) &&
       values.statutPart === props.person.StatutPart && props.personType === 1) dataNotChanged = true;
     if ((checkDate(values.dateStartWork, '') === checkDate(props.person.DateStartWork, '') || values.dateStartWork === checkDate(props.person.DateStartWork, '')) &&
-      values.posada === props.person.Posada && props.personType === 2) dataNotChanged = true;
+      values.posada === props.person.Posada && values.inCombination === Boolean(props.person.InCombination) &&
+      values.sequrBoss === Boolean(props.person.SequrBoss) && props.personType === 2) dataNotChanged = true;
     if (dataNotChanged && values.fullName === props.person.Name && values.indnum === props.person.Indnum &&
       (checkDate(values.birthDate, '') === checkDate(props.person.Birth, '') || values.birthDate === checkDate(props.person.Birth, '')) &&
       values.birthPlace === props.person.BirthPlace && values.livePlace === props.person.LivePlace && values.pasport === props.person.Pasport &&
@@ -103,7 +106,6 @@ export const PersonEdit = (props) => {
           setSameInfoShort(sn);
           setOpenDialog(true);
         }
-        else console.log('continue editing')
       })
       .catch(err => {
         alert(err.response.data);
@@ -158,6 +160,7 @@ export const PersonEdit = (props) => {
   const onSubmit = async (values) => {
     if (isDataChanged()) {
       values.editor = props.editor;
+      values.enterpr = props.person.Enterprise;
       if (values.foto !== fotoUrl) values.foto = fotoUrl;
 
       let linkToPatch, linkToReload;
@@ -169,9 +172,9 @@ export const PersonEdit = (props) => {
         props.isNewPerson.person ? linkToPatch = "/peoples/newhead" : linkToPatch = "/peoples/edithead";
         linkToReload = "/heads/";
         if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
+        values.inCombination === true ? values.inCombination = 1 : values.inCombination = 0;
+        values.sequrBoss === true ? values.sequrBoss = 1 : values.sequrBoss = 0;
       }
-
-      values.enterpr = props.person.Enterprise;
       if (props.isNewPerson.person) {
         await axios.post(linkToPatch, values)
           .then(res => {
@@ -254,7 +257,6 @@ export const PersonEdit = (props) => {
       </Dialog>
     </Box>
     <Paper classes={{ root: "profile_root" }}>
-
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="person-foto__edit">
           <img className="fullPage__person-foto"
@@ -290,47 +292,65 @@ export const PersonEdit = (props) => {
             size="small"
           />
         </div>}
-        {props.personType === 2 && <div className="person-posada__edit">
-          <Autocomplete
-            sx={{ width: '100%' }}
-            freeSolo
-            value={posada}
-            onChange={(event, newValue) => {
-              if (typeof newValue === 'string') setPosada({ name: newValue })
-              else if (newValue && newValue.inputValue) setPosada({ name: newValue.inputValue })
-              else setPosada(newValue);
-            }}
-            filterOptions={(options, params) => {
-              const filtered = filter(options, params);
-              const { inputValue } = params;
-              const isExisting = options.some((option) => inputValue === option.name);
-              if (inputValue !== '' && !isExisting)
-                filtered.push({ inputValue, name: `Додати "${inputValue}"` });
-              return filtered;
-            }}
-            selectOnFocus
-            clearOnBlur
-            handleHomeEndKeys
-            options={workPlacesList}
-            getOptionLabel={(option) => {
-              if (typeof option === 'string') return option;
-              if (option.inputValue) return option.inputValue;
-              return option.name;
-            }}
-            renderOption={(props, option) => <li {...props}>{option.name}</li>}
-            renderInput={(params) => <TextField {...params} {...register('posada', { required: 'Вкажіть посаду' })} label="Посада" />}
-            size="small"
-          />
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
-            <DateField
-              sx={{ width: 160 }}
-              label="На посаді з"
-              value={dateStartWork}
-              onChange={(newValue) => setDateStartWork(newValue)}
-              {...register('dateStartWork')}
+        {props.personType === 2 && <div>
+          <div className="person-posada__edit">
+            <Autocomplete
+              sx={{ width: '100%' }}
+              freeSolo
+              value={posada}
+              onChange={(event, newValue) => {
+                if (typeof newValue === 'string') setPosada({ name: newValue })
+                else if (newValue && newValue.inputValue) setPosada({ name: newValue.inputValue })
+                else setPosada(newValue);
+              }}
+              filterOptions={(options, params) => {
+                const filtered = filter(options, params);
+                const { inputValue } = params;
+                const isExisting = options.some((option) => inputValue === option.name);
+                if (inputValue !== '' && !isExisting)
+                  filtered.push({ inputValue, name: `Додати "${inputValue}"` });
+                return filtered;
+              }}
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              options={workPlacesList}
+              getOptionLabel={(option) => {
+                if (typeof option === 'string') return option;
+                if (option.inputValue) return option.inputValue;
+                return option.name;
+              }}
+              renderOption={(props, option) => <li {...props}>{option.name}</li>}
+              renderInput={(params) => <TextField {...params} {...register('posada', { required: 'Вкажіть посаду' })} label="Посада" />}
               size="small"
             />
-          </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+              <DateField
+                sx={{ width: 160 }}
+                label="На посаді з"
+                value={dateStartWork}
+                onChange={(newValue) => setDateStartWork(newValue)}
+                {...register('dateStartWork')}
+                size="small"
+              />
+            </LocalizationProvider>
+          </div>
+          <div className="person-posada__edit" style={{ marginBottom: "20px" }}>
+            <FormControlLabel label="за сумісництвом" control={
+              <Checkbox
+                defaultChecked={values.inCombination}
+                {...register('inCombination')}
+                size="small"
+              />
+            } />
+            <FormControlLabel label="відповідає за напрямок охоронної діяльності" control={
+              <Checkbox
+                defaultChecked={values.sequrBoss}
+                {...register('sequrBoss')}
+                size="small"
+              />
+            } />
+          </div>
         </div>}
         <TextField
           sx={{ mb: 2 }}

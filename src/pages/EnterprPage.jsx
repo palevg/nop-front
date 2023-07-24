@@ -97,7 +97,9 @@ const EnterprPage = () => {
     StatutPart: null,
     DateEnter: null,
     Posada: null,
-    DateStartWork: null
+    DateStartWork: null,
+    inCombination: false,
+    sequrBoss: false
   }
 
   const [fetchFirmaById, isLoading] = useFetching(async (id) => {
