@@ -20,6 +20,7 @@ export const PersonEdit = (props) => {
   const [posada, setPosada] = useState(props.person.Posada);
   const [fotoUrl, setFotoUrl] = useState(props.person.PhotoFile);
   const inputFileRef = React.useRef(null);
+  const [enableFields, setEnableFields] = useState(!props.isNewPerson.person);
   const [sameInfoList, setSameInfoList] = useState([]);
   const [sameInfoShort, setSameInfoShort] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -68,23 +69,40 @@ export const PersonEdit = (props) => {
     }
   };
 
-  const isDataChanged = () => {
-    const values = getValues();
+  const setValuesToNull = (obj) => {
+    if (obj.indnum === '') obj.indnum = null;
+    if (props.person.Birth === null && isNaN(obj.birthDate)) obj.birthDate = null;
+    if (obj.birthPlace === '') obj.birthPlace = null;
+    if (obj.livePlace === '') obj.livePlace = null;
+    if (obj.pasport === '') obj.pasport = null;
+    if (props.person.PaspDate === null && isNaN(obj.paspDate)) obj.paspDate = null;
+    if (obj.paspPlace === '') obj.paspPlace = null;
+    if (obj.osvita === '') obj.osvita = null;
+    if (obj.statutPart === '') obj.statutPart = null;
+    if (props.person.DateEnter === null && isNaN(obj.dateEnter)) obj.dateEnter = null;
+    if (obj.posada === '') obj.posada = null;
+    if (props.person.DateStartWork === null && isNaN(obj.dateStartWork)) obj.dateStartWork = null;
+  }
+
+  const isDataChanged = (values) => {
     if (props.personType === 2 && posada !== null && posada.name !== undefined) values.posada = posada.name;
-    if (values.osvita === '') values.osvita = null;
-    let dataNotChanged = false;
+    setValuesToNull(values);
+    let dataNotChanged = 0;
+    if (props.personType === 0) dataNotChanged = 1;
     if ((checkDate(values.dateEnter, '') === checkDate(props.person.DateEnter, '') || values.dateEnter === checkDate(props.person.DateEnter, '')) &&
-      values.statutPart === props.person.StatutPart && props.personType === 1) dataNotChanged = true;
+      values.statutPart === props.person.StatutPart && props.personType === 1) dataNotChanged = 1;
     if ((checkDate(values.dateStartWork, '') === checkDate(props.person.DateStartWork, '') || values.dateStartWork === checkDate(props.person.DateStartWork, '')) &&
       values.posada === props.person.Posada && values.inCombination === Boolean(props.person.InCombination) &&
-      values.sequrBoss === Boolean(props.person.SequrBoss) && props.personType === 2) dataNotChanged = true;
-    if (dataNotChanged && values.fullName === props.person.Name && values.indnum === props.person.Indnum &&
+      values.sequrBoss === Boolean(props.person.SequrBoss) && props.personType === 2) dataNotChanged = 1;
+    if (values.fullName === props.person.Name && values.indnum === props.person.Indnum &&
       (checkDate(values.birthDate, '') === checkDate(props.person.Birth, '') || values.birthDate === checkDate(props.person.Birth, '')) &&
       values.birthPlace === props.person.BirthPlace && values.livePlace === props.person.LivePlace && values.pasport === props.person.Pasport &&
       (checkDate(values.paspDate, '') === checkDate(props.person.PaspDate, '') || values.paspDate === checkDate(props.person.PaspDate, '')) &&
-      values.paspPlace === props.person.PaspPlace && values.osvita === props.person.Osvita && values.foto === fotoUrl)
-      return false
-    else return true;
+      values.paspPlace === props.person.PaspPlace && values.osvita === props.person.Osvita && values.foto === fotoUrl) {
+      if (dataNotChanged === 1) return 0;
+      if (dataNotChanged === 0) return 2;
+    }
+    else return 1;
   }
 
   const checkName = async () => {
@@ -157,25 +175,36 @@ export const PersonEdit = (props) => {
     }
   };
 
+  const changeEnabling = () => {
+    if (!props.isNewPerson.person) {
+      if (enableFields && window.confirm('Вам дійсно потрібно відредагувати цю інформацію?')) setEnableFields(false);
+    }
+  }
+
   const onSubmit = async (values) => {
-    if (isDataChanged()) {
+    const changingLevel = isDataChanged(values);
+    if (changingLevel > 0) {
       values.editor = props.editor;
       values.enterpr = props.person.Enterprise;
       if (values.foto !== fotoUrl) values.foto = fotoUrl;
-
-      let linkToPatch, linkToReload;
+      let linkToPatch = "/peoples/", linkToReload;
+      if (props.personType === 0) {
+        linkToPatch += "editperson";
+        linkToReload = "/peoples/";
+      }
       if (props.personType === 1) {
-        props.isNewPerson.person ? linkToPatch = "/peoples/newfounder" : linkToPatch = "/peoples/editfounder";
+        values.personType = 1;
         linkToReload = "/founders/";
       }
       if (props.personType === 2) {
-        props.isNewPerson.person ? linkToPatch = "/peoples/newhead" : linkToPatch = "/peoples/edithead";
-        linkToReload = "/heads/";
         if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
         values.inCombination === true ? values.inCombination = 1 : values.inCombination = 0;
         values.sequrBoss === true ? values.sequrBoss = 1 : values.sequrBoss = 0;
+        values.personType = 2;
+        linkToReload = "/heads/";
       }
       if (props.isNewPerson.person) {
+        linkToPatch += "new";
         await axios.post(linkToPatch, values)
           .then(res => {
             alert(res.data);
@@ -184,7 +213,9 @@ export const PersonEdit = (props) => {
             alert(err.response.data);
           });
       } else {
-        values.humanId = props.person.HumanId;
+        if (props.personType > 0) linkToPatch += "edit";
+        changingLevel === 2 ? values.updatePerson = false : values.updatePerson = true;
+        props.personType === 0 ? values.humanId = props.person.Id : values.humanId = props.person.HumanId;
         if (props.isNewPerson.place) {
           linkToPatch += 'newplace'
         } else {
@@ -198,22 +229,20 @@ export const PersonEdit = (props) => {
             alert(err.response.data);
           });
       }
-      await axios.get(linkToReload + props.person.Enterprise)
+      await axios.get(linkToReload + (props.personType === 0 ? props.person.Id : props.person.Enterprise))
         .then(res => {
-          props.updateList(res.data);
+          props.updateList(props.personType === 0 ? res.data[0] : res.data);
         })
         .catch(err => {
           alert(err.response.data);
         });
-      props.updateEditing(null);
-    } else {
-      window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
-      props.updateEditing(null);
-    }
+    } else window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
+    props.updateEditing(null);
   };
 
   const handleCancelClick = () => {
-    isDataChanged()
+    const values = getValues();
+    isDataChanged(values) > 0
       ? window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?') && props.updateEditing(null)
       : props.updateEditing(null)
   }
@@ -236,8 +265,6 @@ export const PersonEdit = (props) => {
         <DialogContent dividers>
           <RadioGroup
             ref={radioGroupRef}
-            aria-label="ringtone"
-            name="ringtone"
             value={dialogValue}
             onChange={handleDialogChange}
           >
@@ -274,7 +301,10 @@ export const PersonEdit = (props) => {
               label="У складі засновників з"
               value={dateEnter}
               onChange={(newValue) => setDateEnter(newValue)}
-              {...register('dateEnter')}
+              {...register('dateEnter', {
+                required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+                pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+              })}
               size="small"
             />
           </LocalizationProvider>
@@ -284,9 +314,10 @@ export const PersonEdit = (props) => {
             error={Boolean(errors.statutPart?.message)}
             helperText={errors.statutPart?.message}
             {...register('statutPart', {
+              required: "Обов'язкове поле",
               pattern: {
                 value: /^(?:100(?:\.0*)?|[1-9]?\d(?:\.\d*)?|\.\d+)$/,
-                message: "Значення від 0 до 100"
+                message: "Значення від 0.хх до 100"
               }
             })}
             size="small"
@@ -330,7 +361,10 @@ export const PersonEdit = (props) => {
                 label="На посаді з"
                 value={dateStartWork}
                 onChange={(newValue) => setDateStartWork(newValue)}
-                {...register('dateStartWork')}
+                {...register('dateStartWork', {
+                  required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+                  pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+                })}
                 size="small"
               />
             </LocalizationProvider>
@@ -355,13 +389,17 @@ export const PersonEdit = (props) => {
         <TextField
           sx={{ mb: 2 }}
           label="Прізвище, ім'я та по-батькові"
+          disabled={enableFields}
+          onDoubleClick={() => { changeEnabling() }}
+          title={props.isNewPerson.person ? "" : "ПІБ особи змінюється рідко, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба їх відредагувати - зробіть подвійний клік."}
           error={Boolean(errors.fullName?.message)}
           helperText={errors.fullName?.message}
           {...register('fullName', {
             onBlur: () => { props.isNewPerson.place && checkName() },
+            required: "Обов'язкове поле",
             pattern: {
-              value: /^[А-їІЇЄ'\s\-]{8,50}$/,
-              message: "Лише букви кирилиці, апостроф та дефіс (мінімум 8 символів)"
+              value: /^(?=.{8,50}$)[А-ЯІЇЄ][а-яіїє']+(-[А-ЯІЇЄ][а-яіїє']+)? [А-ЯІЇЄ][а-яіїє']+(-[А-ЯІЇЄ][а-яіїє']+)? [А-ЯІЇЄ][а-яіїє']+( [А-їІЇЄ'\s\-]+)?$/,
+              message: "Лише букви кирилиці, апостроф та дефіс (від 8 до 50 символів); ПІБ починаються з великої літери"
             }
           }
           )}
@@ -371,15 +409,22 @@ export const PersonEdit = (props) => {
           <DateField
             sx={{ mb: 2, mr: 2, width: 160 }}
             label="Дата народження"
+            disabled={enableFields}
+            onDoubleClick={() => { changeEnabling() }}
             value={valueBirth}
             onChange={(newValue) => setValueBirth(newValue)}
-            {...register('birthDate', { required: 'Вкажіть дату' })}
+            {...register('birthDate', {
+              required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+              pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+            })}
             size="small"
           />
         </LocalizationProvider>
         <TextField
           sx={{ mb: 2, width: 160 }}
           label="Ідентифікаційний код"
+          disabled={enableFields}
+          onDoubleClick={() => { changeEnabling() }}
           InputLabelProps={{ shrink: values.indnum ? true : undefined }}
           error={Boolean(errors.indnum?.message)}
           helperText={errors.indnum?.message}
@@ -394,22 +439,30 @@ export const PersonEdit = (props) => {
         <TextField
           sx={{ mb: 2 }}
           label="Місце народження"
+          disabled={enableFields}
+          onDoubleClick={() => { changeEnabling() }}
           InputLabelProps={{ shrink: values.birthPlace ? true : undefined }}
-          {...register('birthPlace', { required: 'Вкажіть місце народження' })}
+          error={Boolean(errors.birthPlace?.message)}
+          helperText={errors.birthPlace?.message}
+          {...register('birthPlace', { required: "Обов'язкове поле" })}
           size="small"
           fullWidth />
         <TextField
           sx={{ mb: 2 }}
           label="Місце проживання"
           InputLabelProps={{ shrink: values.livePlace ? true : undefined }}
-          {...register('livePlace', { required: 'Вкажіть місце проживання' })}
+          error={Boolean(errors.livePlace?.message)}
+          helperText={errors.livePlace?.message}
+          {...register('livePlace', { required: "Обов'язкове поле" })}
           size="small"
           fullWidth />
         <TextField
           sx={{ mb: 2, mr: 2, width: 160 }}
           label="Паспорт: серія і №"
           InputLabelProps={{ shrink: values.pasport ? true : undefined }}
-          {...register('pasport', { required: 'Вкажіть серію і № паспорта' })}
+          error={Boolean(errors.pasport?.message)}
+          helperText={errors.pasport?.message}
+          {...register('pasport', { required: "Обов'язкове поле" })}
           size="small"
         />
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
@@ -418,7 +471,10 @@ export const PersonEdit = (props) => {
             label="дата видачі"
             value={valuePasp}
             onChange={(newValue) => setValuePasp(newValue)}
-            {...register('paspDate', { required: 'Вкажіть дату' })}
+            {...register('paspDate', {
+              required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+              pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+            })}
             size="small"
           />
         </LocalizationProvider>
@@ -426,7 +482,9 @@ export const PersonEdit = (props) => {
           sx={{ mb: 2 }}
           label="яким органом видано"
           InputLabelProps={{ shrink: values.paspPlace ? true : undefined }}
-          {...register('paspPlace', { required: 'Вкажіть орган видачі паспорта' })}
+          error={Boolean(errors.paspPlace?.message)}
+          helperText={errors.paspPlace?.message}
+          {...register('paspPlace', { required: "Обов'язкове поле" })}
           size="small"
           fullWidth />
         <TextField

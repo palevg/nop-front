@@ -38,7 +38,6 @@ export const HeadsList = (props) => {
 
   const handleDialogClose = async () => {
     const fireDateISO = new Date(dateExit).toISOString().substring(0, 10);
-    if (props.role) {}
     if (fireDateISO < (props.role ? firePerson.DateStartWork : firePerson.DateEnter)) {
       alert(props.role ? "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!" :
         "Вивести особу зі складу засновників раніше, ніж вона стала співзасновником, неможливо!");
