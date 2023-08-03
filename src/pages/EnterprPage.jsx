@@ -4,19 +4,22 @@ import PropTypes from "prop-types";
 import axios from '../axios';
 import { AuthContext } from "../context/authContext";
 import { AppBar, Box, Typography, Tabs, Tab, FormControlLabel, Switch, Button } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { useFetching } from "../hooks/useFetching";
 import Error from './Error';
 import Loader from "../components/UI/Loader/Loader";
 import MyModal from '../components/UI/MyModal/MyModal';
 import { checkDate } from "../utils/checkers";
+import { taxState, riskState, licenseState } from "../utils/data";
 import { EnterprList } from "../components/EnterprList";
 import { EntFoundersList } from "../components/EntFoundersList";
 import { HeadsList } from "../components/HeadsList";
 import { ObjectsList } from "../components/ObjectsList";
 import { CheckList } from "../components/CheckList";
 import { PersonEdit } from "../components/PersonEdit";
+import { EnterprEdit } from "../components/EnterprEdit";
 import "../styles/pages.css";
 
 const TabPanel = (props) => {
@@ -49,10 +52,6 @@ const a11yProps = (index) => {
   };
 }
 
-const taxState = ["спрощена", "загальна", "невідомо"];
-const riskState = ["високий", "середній", "незначний", "невідомо"];
-const licenseState = ["діюча", "анульована", "призупинена", "недійсна"];
-
 const EnterprPage = () => {
   const [value, setValue] = useState(0);
   function handleChange(event, newValue) {
@@ -77,6 +76,8 @@ const EnterprPage = () => {
   const [employees, setEmployees] = useState([]);
   const [objects, setObjects] = useState([]);
   const [checkings, setCheckings] = useState([]);
+  const [editEnterpr, setEditEnterpr] = useState(null);
+  const updateMainEditing = (value) => { setEditEnterpr(value); }
   const [editPerson, setEditPerson] = useState(null);
   const updateEditing = (value) => { setEditPerson(value); }
   const updateHeadsList = (value) => { setHeads(value); }
@@ -189,7 +190,7 @@ const EnterprPage = () => {
     ? isLoading
       ? <Loader />
       : enterprNew
-        ? <div className="fullPage">
+        ? editEnterpr ? <EnterprEdit addNew={false} enterpr={enterpr} updateEditing={updateMainEditing} /> : <div className="fullPage">
           <h1 className="fullPage__name">{enterpr.FullName}</h1>
           <AppBar position="static" color="default">
             <Tabs
@@ -214,6 +215,7 @@ const EnterprPage = () => {
             <MyModal visible={modal} setVisible={setModal}>
               {enterpr.Shevron && <img src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />}
             </MyModal>
+            {currentUser.acc > 1 && <Button sx={{ mb: 2 }} onClick={() => setEditEnterpr(true)} variant="contained" startIcon={<EditNoteIcon />}>Редагувати</Button>}
             {enterprData.map((item, index) =>
               item.fieldValue && <div className="rowInfo" key={index}>
                 <div className="rowInfo__fieldName">{item.fieldName}:</div>
@@ -234,7 +236,6 @@ const EnterprPage = () => {
             {enterpAfil.length > 0 && <div style={{ marginTop: 40 }}>
               <EnterprList enterprs={enterpAfil} loading={false} title="Афільовані підприємства" titleSize={false} />
             </div>}
-            {currentUser.acc > 1 && <Button className="enterpr__edit-btn" variant="contained" startIcon={<EditIcon />}>Редагувати</Button>}
           </TabPanel>
           <TabPanel value={value} index={1}>
             {founders.filter(founders => founders.State === 0).length > 0
@@ -245,7 +246,13 @@ const EnterprPage = () => {
               : <div className="block-header">Фізичних осіб у складі засновників немає</div>
             }
             {currentUser.acc > 1 && editPerson === null && <div>
-              <Button className="enterpr__add-btn" onClick={() => setEditPerson(newPersonData)} variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - фізичну особу</Button>
+              <Button
+                sx={{ mb: 3, ml: 3, mt: 3 }}
+                onClick={() => setEditPerson(newPersonData)}
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+              >Додати нового співзасновника - фізичну особу
+              </Button>
             </div>}
             {editPerson !== null && <PersonEdit
               person={editPerson}
@@ -271,7 +278,12 @@ const EnterprPage = () => {
               : <div className="block-header">Юридичних осіб у складі засновників немає</div>
             }
             {currentUser.acc > 1 && <div>
-              <Button className="enterpr__add-btn" variant="contained" startIcon={<AddIcon />}>Додати нового співзасновника - юридичну особу</Button>
+              <Button
+                sx={{ mb: 3, ml: 3, mt: 3 }}
+                variant="contained"
+                startIcon={<AddBusinessIcon />}
+              >Додати нового співзасновника - юридичну особу
+              </Button>
             </div>}
             {foundersE.filter(foundersE => foundersE.State === 1).length > 0 && <FormControlLabel
               label="показати попередніх засновників - юридичних осіб"
@@ -288,7 +300,13 @@ const EnterprPage = () => {
               : <div className="block-header">Керівників у підприємства на даний час немає</div>
             }
             {currentUser.acc > 1 && editPerson === null && <div>
-              <Button className="enterpr__add-btn" onClick={() => setEditPerson(newPersonData)} variant="contained" startIcon={<AddIcon />}>Додати нового керівника</Button>
+              <Button
+                sx={{ mb: 3, ml: 3, mt: 3 }}
+                onClick={() => setEditPerson(newPersonData)}
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+              >Додати нового керівника
+              </Button>
             </div>}
             {editPerson !== null && <PersonEdit
               person={editPerson}

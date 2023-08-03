@@ -122,20 +122,25 @@ a:active {
     width: 300px;
 }
 
-.searching-form__text {
-    margin-bottom: 20px !important;
+.buttons-top {
+    display: flex;
+    gap: 1em;
+    margin-top: 8px;
 }
 
-.search-header {
-    margin-top: 5px;
+.buttons-top__search {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     background-color: #f8f8f8;
 }
 
-.search-header div {
+.buttons-top__search div {
     margin-top: 8px;
     font-size: 14px;
+}
+
+.buttons-top__new {
+    min-width: 260px;
 }
 
 .peoples-table {
@@ -203,6 +208,9 @@ a:active {
     .person-item__adr {
         display: none;
     }
+    .buttons-top__new {
+        min-width: 170px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -241,5 +249,11 @@ a:active {
     }
     .person-item__adr {
         display: none;
+    }
+    .buttons-top {
+        display: block;
+    }
+    .buttons-top__new {
+        margin-top: 8px;
     }
 }

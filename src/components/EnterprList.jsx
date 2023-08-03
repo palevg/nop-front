@@ -11,7 +11,7 @@ export const EnterprList = ({ enterprs, loading, title, titleSize }) => {
         : <h2 className="page-header__text">{title}</h2>
       }
       <div className="enterpr__header">
-        <div>Назва підприємства</div>
+        <div>Назва</div>
         <div>Код ЄДРПОУ</div>
       </div>
       {enterprs.map((enterpr, index) =>

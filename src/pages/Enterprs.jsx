@@ -6,19 +6,19 @@ import Error from './Error';
 import MyModal from '../components/UI/MyModal/MyModal';
 import { useFetching } from '../hooks/useFetching';
 import { EnterprList } from '../components/EnterprList';
-import { TextField, MenuItem, Button } from "@mui/material";
+import { EnterprEdit } from "../components/EnterprEdit";
+import { regionNames, licensesState, ordersState } from "../utils/data";
+import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, TextField, MenuItem, Button } from "@mui/material";
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 
 const Enterprs = () => {
-  const { isAuth } = React.useContext(AuthContext);
+  const { isAuth, currentUser } = React.useContext(AuthContext);
   const [enterprs, setEnterprs] = useState([]);
+  const [editEnterpr, setEditEnterpr] = useState(null);
+  const updateEditing = (value) => { setEditEnterpr(value); }
   const [modal, setModal] = useState(true);
+  const [searchArea, setSearchArea] = useState("0");
   const [queryData, setQueryData] = useState({ name: null });
-
-  const regionNames = ["вся Україна", "АР Крим", "Вінницька обл.", "Волинська обл.", "Дніпропетровська обл.", "Донецька обл.", "Житомирська обл.",
-    "Закарпатська обл.", "Запорізька обл.", "Івано-Франківська обл.", "Київська обл.", "м. Київ", "Кіровоградська обл.", "Луганська обл.",
-    "Львівська обл.", "Миколаївська обл.", "Одеська обл.", "Полтавська обл.", "Рівненська обл.", "Сумська обл.", "Тернопільська обл.",
-    "Харківська обл.", "Херсонська обл.", "Хмельницька обл.", "Черкаська обл.", "Чернігівська обл.", "Чернівецька обл."];
-  const licenseState = ["діючі", "анульовані", "строк дії закінчено", "недійсні", "всі"];
 
   let dataToSearch;
   const { register, handleSubmit, setValue } = useForm({
@@ -27,12 +27,14 @@ const Enterprs = () => {
       name: '',
       edrpou: '',
       address: '',
-      license: 0
+      license: 0,
+      order: 0
     },
     mode: 'onChange'
   });
 
   const onSubmit = (values) => {
+    values.area = searchArea;
     setEnterprs([]);
     dataToSearch = values;
     setQueryData(dataToSearch);
@@ -45,9 +47,7 @@ const Enterprs = () => {
     setValue('name', '');
     setValue('edrpou', '');
     setValue('address', '');
-    setValue('license', 0);
     document.getElementById("select-region").textContent = regionNames[0];
-    document.getElementById("select-licenses").textContent = licenseState[0];
   }
 
   const [fetchEnterprs, isEnterprLoading, enterprError] = useFetching(async () => {
@@ -56,11 +56,48 @@ const Enterprs = () => {
   });
 
   return isAuth
-    ? <div className="list-page">
+    ? editEnterpr ? <EnterprEdit addNew={true} enterpr={null} updateEditing={updateEditing} /> : <div className="list-page">
       <MyModal visible={modal} setVisible={setModal}>
         <form className="searching-form" onSubmit={handleSubmit(onSubmit)}>
+          <FormControl>
+            <FormLabel id="radio-buttons-area">Шукати у розділі</FormLabel>
+            <RadioGroup
+              sx={{ mb: 2 }}
+              row
+              aria-labelledby="radio-buttons-area"
+              value={searchArea}
+              onChange={(event) => { setSearchArea(event.target.value) }}
+            >
+              <FormControlLabel value="0" control={<Radio />} label="ліцензії" />
+              <FormControlLabel value="1" control={<Radio />} label="заяви" />
+            </RadioGroup>
+          </FormControl>
+          {searchArea === "0" && <TextField
+            sx={{ mb: 2 }}
+            label="Стан ліцензій"
+            select
+            defaultValue={0}
+            {...register('license')}
+            fullWidth
+          >
+            {licensesState.map((item, index) =>
+              <MenuItem key={index} value={index}>{item}</MenuItem>
+            )}
+          </TextField>}
+          {searchArea === "1" && <TextField
+            sx={{ mb: 2 }}
+            label="Стан заяв"
+            select
+            defaultValue={0}
+            {...register('order')}
+            fullWidth
+          >
+            {ordersState.map((item, index) =>
+              <MenuItem key={index} value={index}>{item}</MenuItem>
+            )}
+          </TextField>}
           <TextField
-            className="searching-form__text"
+            sx={{ mb: 2 }}
             label="Територія пошуку"
             id="select-region"
             select
@@ -73,53 +110,46 @@ const Enterprs = () => {
             )}
           </TextField>
           <TextField
-            className="searching-form__text"
+            sx={{ mb: 2 }}
             label="Назва юридичної особи"
-            {...register('name', { required: false })}
+            {...register('name')}
             fullWidth
           />
           <TextField
-            className="searching-form__text"
-            label="Код ЄДРПОУ"
-            {...register('edrpou', { required: false })}
+            sx={{ mb: 2 }}
+            label="Код за ЄДРПОУ"
+            {...register('edrpou')}
             fullWidth />
           <TextField
-            className="searching-form__text"
+            sx={{ mb: 2 }}
             label="Місцезнаходження"
-            {...register('address', { required: false })}
+            {...register('address')}
             fullWidth />
-          <TextField
-            className="searching-form__text"
-            label="Стан ліцензій"
-            id="select-licenses"
-            select
-            defaultValue={0}
-            {...register('license', { required: true })}
-            fullWidth
-          >
-            {licenseState.map((item, index) =>
-              <MenuItem key={index} value={index}>{item}</MenuItem>
-            )}
-          </TextField>
           <Button type="submit" size="large" variant="contained" sx={{ mr: 2 }}>Шукати</Button>
           <Button type="reset" size="large" variant="outlined" onClick={handleClearFields}>Очистити</Button>
         </form>
       </MyModal>
-      <div className="search-header">
-        <Button onClick={() => setModal(true)} variant="outlined">Фільтр</Button>
-        <div> ➨ знайдено {enterprs.length}
-          {enterprs.length === 1 && ' підприємство'}
-          {enterprs.length > 1 && enterprs.length < 5 && ' підприємства'}
-          {(enterprs.length === 0 || enterprs.length > 4) && ' підприємств'}
-          {enterprs.length > 0 && ': регіон - ' + regionNames[queryData.region]}
-          {queryData.name && ', назва містить "' + queryData.name + '"'}
-          {queryData.edrpou && ', код ЄДРПОУ містить "' + queryData.edrpou + '"'}
-          {queryData.address && ', адреса містить "' + queryData.address + '"'}
-          {queryData.license >= 0 && '; стан ліцензій - ' + licenseState[queryData.license]}
+      <div className="buttons-top">
+        <div className="buttons-top__search">
+          <Button onClick={() => setModal(true)} variant="outlined">Фільтр</Button>
+          <div> ➨ знайдено {enterprs.length}
+            {enterprs.length === 1 && ' юридична особа'}
+            {enterprs.length > 1 && enterprs.length < 5 && ' юридичні особи'}
+            {(enterprs.length === 0 || enterprs.length > 4) && ' юридичних осіб'}
+            {enterprs.length > 0 && ': регіон - ' + regionNames[queryData.region]}
+            {queryData.name && ', назва містить "' + queryData.name + '"'}
+            {queryData.edrpou && ', код ЄДРПОУ містить "' + queryData.edrpou + '"'}
+            {queryData.address && ', адреса містить "' + queryData.address + '"'}
+            {searchArea === "0" && '; стан ліцензій - ' + licensesState[queryData.license]}
+            {searchArea === "1" && '; стан заяв - ' + ordersState[queryData.order]}
+          </div>
         </div>
+        {currentUser.acc > 1 && <div className="buttons-top__new">
+          <Button onClick={() => setEditEnterpr(true)} variant="contained" startIcon={<AddBusinessIcon />}>Додати нову юридичну особу</Button>
+        </div>}
       </div>
       {enterprError && <h1>Сталась помилка "{enterprError}"</h1>}
-      <EnterprList enterprs={enterprs} loading={isEnterprLoading} title="Список підприємств" titleSize={true} />
+      <EnterprList enterprs={enterprs} loading={isEnterprLoading} title="Юридичні особи" titleSize={true} />
     </div>
     : <Error />
 }

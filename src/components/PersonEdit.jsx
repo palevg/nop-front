@@ -316,7 +316,7 @@ export const PersonEdit = (props) => {
             {...register('statutPart', {
               required: "Обов'язкове поле",
               pattern: {
-                value: /^(?:100(?:\.0*)?|[1-9]?\d(?:\.\d*)?|\.\d+)$/,
+                value: /^(?:0?\.\d*[1-9]+|100|[1-9]\d?(\.\d*[1-9]+)?)$/,
                 message: "Значення від 0.хх до 100"
               }
             })}

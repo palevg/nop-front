@@ -13,14 +13,6 @@
     background-color: #ADD8E6;
 }
 
-.enterpr__edit-btn {
-    margin: 20px 0 0 30px !important;
-}
-
-.enterpr__add-btn {
-    margin: 20px 0 30px 30px !important;
-}
-
 .rowInfo {
     display: flex;
     align-items: flex-end;

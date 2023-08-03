@@ -7,7 +7,7 @@ export const PeoplesList = ({ peoples, loading }) => {
 
   return peoples.length > 0
     ? <div>
-      <h1 className="page-header__text">Список фізичних осіб</h1>
+      <h1 className="page-header__text">Фізичні особи</h1>
       <table className="peoples-table">
         <thead>
           <tr>
