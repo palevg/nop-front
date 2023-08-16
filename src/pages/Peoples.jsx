@@ -3,16 +3,15 @@ import { useForm } from 'react-hook-form';
 import { AuthContext } from "../context/authContext";
 import PersonService from "../API/PersonService";
 import Error from './Error';
-import MyModal from '../components/UI/MyModal/MyModal';
 import { useFetching } from '../hooks/useFetching';
 import { PeoplesList } from "../components/PeoplesList";
-import { TextField, Button } from "@mui/material";
+import { Dialog, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 const Peoples = () => {
   const { isAuth } = React.useContext(AuthContext);
   const [peoples, setPeoples] = useState([]);
-  const [modal, setModal] = useState(true);
+  const [openDialog, setOpenDialog] = useState(true);
   const [queryData, setQueryData] = useState({ name: null });
   let dataToSearch;
   const { register, handleSubmit, formState: { errors, isValid } } = useForm({
@@ -27,7 +26,7 @@ const Peoples = () => {
   const onSubmit = (values) => {
     dataToSearch = values;
     setQueryData(dataToSearch);
-    setModal(false);
+    setOpenDialog(false);
     fetchPeoples();
   }
 
@@ -38,30 +37,36 @@ const Peoples = () => {
 
   return isAuth
     ? <div className="list-page">
-      <MyModal visible={modal} setVisible={setModal}>
-        <form className="searching-form" onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            sx={{ mb: 2 }}
-            label="ПІБ"
-            {...register('name', { required: 'Вкажіть хоча б частину ПІБ' })}
-            fullWidth
-          />
-          <TextField
-            sx={{ mb: 2 }}
-            label="Адреса проживання"
-            {...register('address')}
-            fullWidth />
-          <TextField
-            sx={{ mb: 2 }}
-            label="Ідентифікаційний код"
-            {...register('idkod')}
-            fullWidth />
-          <Button disabled={!isValid} type="submit" size="large" variant="contained" fullWidth>Шукати</Button>
+      <Dialog maxWidth="xs" open={openDialog}>
+        <form style={{ width: 300 }} onSubmit={handleSubmit(onSubmit)}>
+          <DialogContent>
+            <TextField
+              sx={{ mb: 2 }}
+              label="ПІБ"
+              error={Boolean(errors.name?.message)}
+              helperText={errors.name?.message}
+              {...register('name', { required: 'Вкажіть хоча б частину ПІБ' })}
+              fullWidth
+            />
+            <TextField
+              sx={{ mb: 2 }}
+              label="Адреса проживання"
+              {...register('address')}
+              fullWidth />
+            <TextField
+              label="Ідентифікаційний код"
+              {...register('idkod')}
+              fullWidth />
+          </DialogContent>
+          <DialogActions>
+            <Button type="submit" disabled={!isValid} variant="contained">ПІДТВЕРДИТИ</Button>
+            <Button sx={{ mr: 2 }} onClick={() => setOpenDialog(false)}>СКАСУВАТИ</Button>
+          </DialogActions>
         </form>
-      </MyModal>
+      </Dialog>
       <div className="buttons-top">
         <div className="buttons-top__search">
-          <Button onClick={() => setModal(true)} variant="outlined">Пошук</Button>
+          <Button onClick={() => setOpenDialog(true)} variant="outlined">Пошук</Button>
           {queryData.name &&
             <div> ➨ знайдено {peoples.length} осіб, де ПІБ містить "{queryData.name}"
               {queryData.address && ', адреса містить "' + queryData.address + '"'}

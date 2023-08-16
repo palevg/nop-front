@@ -23,6 +23,7 @@ export const HeadsList = (props) => {
   const [dateExit, setDateExit] = useState(null);
 
   const handleEdit = row => {
+    props.updateEditMode(row);
     setEditPerson(row);
   }
 
@@ -87,65 +88,71 @@ export const HeadsList = (props) => {
             </LocalizationProvider>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={handleCancel}>СКАСУВАТИ</Button>
-            <Button onClick={handleDialogClose} disabled={isNaN(dateExit) || Boolean(dateExit === null)}>ПІДТВЕРДИТИ</Button>
+            <Button autoFocus onClick={handleCancel} variant="outlined">СКАСУВАТИ</Button>
+            <Button onClick={handleDialogClose} disabled={isNaN(dateExit) || Boolean(dateExit === null)} variant="contained">ПІДТВЕРДИТИ</Button>
           </DialogActions>
         </Dialog>
       </Box>
-      <div className="rowInfo list-header">
-        <div className="rowInfo__humanName">Прізвище, ім'я та по-батькові</div>
-        <div className="rowInfo__humanState">{
-          props.sequr
-            ? "Посада"
-            : props.role
-              ? props.active
-                ? "Посада, дата призначення"
-                : "Посада, дата призначення та звільнення"
-              : props.active
-                ? "Частка у Статутному капіталі, з дати"
-                : "Частка у Статутному капіталі, з ... по ..."
-        }</div>
-      </div>
-      {props.source.map((item, index) =>
-        <div className="rowInfo editable" key={index} >
-          <div className="rowInfo__humanName"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
-          <div className="rowInfo__humanState">{
-            props.sequr
-              ? item.Posada
-              : props.role
-                ? props.active
-                  ? item.InCombination
-                    ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ")
-                    : item.Posada + checkDate(item.DateStartWork, " з ")
-                  : item.InCombination
-                    ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
-                    : item.Posada + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
-                : props.active
-                  ? checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ")
-                  : checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ") + checkDate(item.DateExit, " по ")
-          }</div>
-          {currentUser.acc > 1 && props.buttons &&
-            <div className="rowInfo__buttons">
-              <Tooltip title="Редагувати дані">
-                <IconButton size="small" color="primary" aria-label="edit" onClick={handleEdit.bind(null, item)}>
-                  <EditNoteIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={props.role ? "Звільнити з посади" : "Вивести зі складу засновників"}>
-                <IconButton size="small" color="primary" aria-label="delete" onClick={handleFire.bind(null, item)}>
-                  <WorkOffIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
-            </div>}
+      {editPerson === null
+        ? <div>
+          <div className="rowInfo list-header">
+            <div className="rowInfo__humanName">Прізвище, ім'я та по-батькові</div>
+            <div className="rowInfo__humanState">{
+              props.sequr
+                ? "Посада"
+                : props.role
+                  ? props.active
+                    ? "Посада, дата призначення"
+                    : "Посада, дата призначення та звільнення"
+                  : props.active
+                    ? "Частка у Статутному капіталі, з дати"
+                    : "Частка у Статутному капіталі, з ... по ..."
+            }</div>
+          </div>
+          {props.source.map((item, index) =>
+            <div className="rowInfo editable" key={index} >
+              <div className="rowInfo__humanName"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
+              <div className="rowInfo__humanState">{
+                props.sequr
+                  ? item.Posada
+                  : props.role
+                    ? props.active
+                      ? item.InCombination
+                        ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ")
+                        : item.Posada + checkDate(item.DateStartWork, " з ")
+                      : item.InCombination
+                        ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
+                        : item.Posada + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
+                    : props.active
+                      ? checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ")
+                      : checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ") + checkDate(item.DateExit, " по ")
+              }</div>
+              {currentUser.acc > 1 && props.buttons &&
+                <div className="rowInfo__buttons">
+                  <Tooltip title="Редагувати дані">
+                    <IconButton size="small" color="primary" aria-label="edit" onClick={handleEdit.bind(null, item)}>
+                      <EditNoteIcon fontSize="inherit" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={props.role ? "Звільнити з посади" : "Вивести зі складу засновників"}>
+                    <IconButton size="small" color="primary" aria-label="delete" onClick={handleFire.bind(null, item)}>
+                      <WorkOffIcon fontSize="inherit" />
+                    </IconButton>
+                  </Tooltip>
+                </div>}
+            </div>
+          )}
         </div>
-      )}
-      {editPerson !== null && <PersonEdit
-        person={editPerson}
-        personType={personType}
-        updateEditing={updateEditing}
-        updateList={props.updateList}
-        isNewPerson={{ person: false, place: false }}
-        editor={currentUser.Id} />
+        : <PersonEdit
+          person={editPerson}
+          personType={personType}
+          simpleEdit={false}
+          updateEditing={updateEditing}
+          updateList={props.updateList}
+          updateEditMode={props.updateEditMode}
+          isNewPerson={{ person: false, place: false }}
+          editor={currentUser.Id}
+        />
       }
     </div>
   )

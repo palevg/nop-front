@@ -1,10 +1,6 @@
 import React from "react";
 import { checkDate } from "../utils/checkers";
-
-const checkType = ["планова", "позапланова (перевірка виконання розпорядження)", "позапланова (по письмовій скарзі/заяві)"];
-const pointsLicUmText = ["2.1.1", "2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.2.1", "2.2.2", "2.2.3", "2.2.4", "2.2.5", "2.2.6",
-  "3.1", "3.2", "3.3", "3.4", "3.5", "4.2.9", "4.2.10", "4.2.11", "4.2.12", "4.2.13", "4.2.14", "4.2.15", "4.2.16", "4.2.17", "4.4",
-  "4.5.1", "4.5.2", "4.5.3", "4.5.6", "4.6.1", "4.6.2", "4.6.3", "4.6.4", "4.7.1", "4.7.2", "4.7.3", "4.7.4", "4.7.5", "4.7.6", "4.7.7", "4.7.8"];
+import { checkType, pointsLicUmText } from "../utils/data";
 
 const checkPointsLU = (pointLicUm, pointText) => {
   let resText = '';
@@ -19,6 +15,12 @@ const checkPointsLU = (pointLicUm, pointText) => {
 
 export const CheckList = (props) => {
 
+  const handleChange = (event) => {
+    const obj = document.getElementById("lab" + event.target.id);
+    obj.textContent = event.target.checked ? "⊝" : "⊕";
+    obj.title = event.target.checked ? "Сховати розширену інформацію" : "Показати розширену інформацію";
+  }
+
   return (
     <div>
       <div className="rowInfo check-header">
@@ -30,14 +32,14 @@ export const CheckList = (props) => {
       {props.source.map((item, index) =>
         <div className="list-item" key={index}>
           <div className="list-item__visible">
-            <label className="list-item__switch" htmlFor={"showCheckPart" + index} title="Розширена інформація">⇕</label>
+            <label className="list-item__switch" htmlFor={"showCheckPart" + index} id={"labshowCheckPart" + index} title="Показати розширену інформацію">⊕</label>
             <div className="list-item__visible-data">
               <div className="rowInfo__check-type">{checkType[item.CheckType]}</div>
               <div className="rowInfo__check-doc">{checkDate(item.CheckSertificateDate, "від ")} № {item.CheckSertificateNo}</div>
               <div className="rowInfo__checker">{item.Checker}</div>
             </div>
           </div>
-          <input className="list-item__checkbox" id={"showCheckPart" + index} type="checkbox" />
+          <input className="list-item__checkbox" id={"showCheckPart" + index} type="checkbox" onClick={handleChange} />
           <div className="list-item__invisible">
             <div>Перевірка проведена{item.StartCheckDate === item.EndCheckDate
               ? checkDate(item.StartCheckDate, " ")

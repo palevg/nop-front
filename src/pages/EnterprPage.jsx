@@ -16,6 +16,7 @@ import { taxState, riskState, licenseState } from "../utils/data";
 import { EnterprList } from "../components/EnterprList";
 import { EntFoundersList } from "../components/EntFoundersList";
 import { HeadsList } from "../components/HeadsList";
+import { OrdersList } from "../components/OrdersList";
 import { ObjectsList } from "../components/ObjectsList";
 import { CheckList } from "../components/CheckList";
 import { PersonEdit } from "../components/PersonEdit";
@@ -65,6 +66,7 @@ const EnterprPage = () => {
   const { isAuth, currentUser } = React.useContext(AuthContext);
   const [enterprNew, setEnterprNew] = useState(null);
   const [enterpr, setEnterpr] = useState({});
+  const updateEnterprInfo = (value) => { setEnterpr(value); }
   const [enterpAfil, setEnterpAfil] = useState([]);
   const [founders, setFounders] = useState([]);
   const [oldFounders, setOldFounders] = useState(false);
@@ -72,7 +74,10 @@ const EnterprPage = () => {
   const [oldFoundersE, setOldFoundersE] = useState(false);
   const [heads, setHeads] = useState([]);
   const [oldHeads, setOldHeads] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const updateOrdersList = (value) => { setOrders(value); }
   const [licenses, setLicenses] = useState([]);
+  const updateLicensesList = (value) => { setLicenses(value); }
   const [employees, setEmployees] = useState([]);
   const [objects, setObjects] = useState([]);
   const [checkings, setCheckings] = useState([]);
@@ -82,25 +87,15 @@ const EnterprPage = () => {
   const updateEditing = (value) => { setEditPerson(value); }
   const updateHeadsList = (value) => { setHeads(value); }
   const updateFoundersList = (value) => { setFounders(value); }
+  const [editMode, setEditMode] = useState(null);
+  const updateEditMode = (value) => { setEditMode(value); }
 
-  let newPersonData = {
-    Name: '',
-    Indnum: null,
-    Birth: null,
-    BirthPlace: null,
-    LivePlace: null,
-    Pasport: null,
-    PaspDate: null,
-    PaspPlace: null,
-    Osvita: null,
-    PhotoFile: null,
+  const newPersonData = {
+    Name: '', Indnum: null, Birth: null, BirthPlace: null, LivePlace: null,
+    Pasport: null, PaspDate: null, PaspPlace: null, Osvita: null, PhotoFile: null,
     Enterprise: params.id,
-    StatutPart: null,
-    DateEnter: null,
-    Posada: null,
-    DateStartWork: null,
-    inCombination: false,
-    sequrBoss: false
+    StatutPart: null, DateEnter: null,
+    Posada: null, DateStartWork: null, inCombination: false, sequrBoss: false
   }
 
   const [fetchFirmaById, isLoading] = useFetching(async (id) => {
@@ -108,8 +103,9 @@ const EnterprPage = () => {
       .then(response => {
         setEnterpr(response.data[0]);
         if (enterprNew !== params.id) {   // це тимчасова перевірка, бо поки є подвійне зчитування даних
-          enterpAfil.length = founders.length = foundersE.length = heads.length = licenses.length = employees.length = objects.length = checkings.length = 0;
-          response.data.map((item) => {
+          enterpAfil.length = founders.length = foundersE.length = heads.length = orders.length =
+            licenses.length = employees.length = objects.length = checkings.length = 0;
+          response.data.forEach((item) => {
             switch (item.res_key) {
               case 1:
                 enterpAfil.push(item);
@@ -124,15 +120,18 @@ const EnterprPage = () => {
                 heads.push(item);
                 break
               case 5:
-                licenses.push(item);
+                orders.push(item);
                 break
               case 6:
-                employees.push(item);
+                licenses.push(item);
                 break
               case 7:
-                objects.push(item);
+                employees.push(item);
                 break
               case 8:
+                objects.push(item);
+                break
+              case 9:
                 checkings.push(item);
                 break
             }
@@ -143,6 +142,7 @@ const EnterprPage = () => {
         setFounders(founders);
         setFoundersE(foundersE);
         setHeads(heads);
+        setOrders(orders);
         setLicenses(licenses);
         setEmployees(employees);
         setObjects(objects);
@@ -164,6 +164,16 @@ const EnterprPage = () => {
 
   const showOldHeads = () => {
     oldHeads ? setOldHeads(false) : setOldHeads(true);
+  }
+
+  const uniqueHeads = () => {
+    const unique = [];
+    heads.forEach((item) => {
+      if (unique.filter(unique => unique.HumanId === item.HumanId).length === 0) {
+        unique.push(item);
+      }
+    });
+    return unique;
   }
 
   const enterprData = [
@@ -190,190 +200,203 @@ const EnterprPage = () => {
     ? isLoading
       ? <Loader />
       : enterprNew
-        ? editEnterpr ? <EnterprEdit addNew={false} enterpr={enterpr} updateEditing={updateMainEditing} /> : <div className="fullPage">
-          <h1 className="fullPage__name">{enterpr.FullName}</h1>
-          <AppBar position="static" color="default">
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              indicatorColor="primary"
-              textColor="primary"
-              variant="scrollable"
-              scrollButtons="auto"
-              aria-label="scrollable auto tabs example"
-            >
-              <Tab label="ЗАГАЛЬНЕ" disabled={Boolean(editPerson && value !== 0)} {...a11yProps(0)} />
-              <Tab label="ЗАСНОВНИКИ" disabled={Boolean(editPerson && value !== 1)} {...a11yProps(1)} />
-              <Tab label="КЕРІВНИКИ" disabled={Boolean(editPerson && value !== 2)} {...a11yProps(2)} />
-              <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean(editPerson && value !== 3)} {...a11yProps(3)} />
-              <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} disabled={Boolean(editPerson && value !== 4)} {...a11yProps(4)} />
-              <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} disabled={Boolean(editPerson && value !== 5)} {...a11yProps(5)} />
-              <Tab label={"ПЕРЕВІРКИ (" + checkings.length + ")"} disabled={Boolean(editPerson && value !== 6)} {...a11yProps(6)} />
-            </Tabs>
-          </AppBar>
-          <TabPanel value={value} index={0}>
-            <MyModal visible={modal} setVisible={setModal}>
-              {enterpr.Shevron && <img src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />}
-            </MyModal>
-            {currentUser.acc > 1 && <Button sx={{ mb: 2 }} onClick={() => setEditEnterpr(true)} variant="contained" startIcon={<EditNoteIcon />}>Редагувати</Button>}
-            {enterprData.map((item, index) =>
-              item.fieldValue && <div className="rowInfo" key={index}>
-                <div className="rowInfo__fieldName">{item.fieldName}:</div>
-                <div className="rowInfo__fieldValue">{item.fieldValue}</div>
-              </div>
-            )}
-            {currentUser.acc > 1 && enterpr.HideInfo && <div className="rowInfo">
-              <div className="rowInfo__fieldName">Службова інформація:</div>
-              <div className="rowInfo__fieldValue">{enterpr.HideInfo}</div>
-            </div>}
-            {enterpr.Shevron && <div className="rowInfo">
-              Шеврон або розпізнавальний знак на одязі персоналу охорони:
-              <img style={{ height: 40, marginLeft: 20, cursor: "pointer" }}
-                onClick={showShevron}
-                title="Натисніть щоб збільшити розмір зображення"
-                src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />
-            </div>}
-            {enterpAfil.length > 0 && <div style={{ marginTop: 40 }}>
-              <EnterprList enterprs={enterpAfil} loading={false} title="Афільовані підприємства" titleSize={false} />
-            </div>}
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            {founders.filter(founders => founders.State === 0).length > 0
-              ? <div>
-                <div className="block-header">Засновники - фізичні особи:</div>
-                <HeadsList source={founders.filter(founders => founders.State === 0)} role={false} active={true} sequr={false} buttons={true} updateList={updateFoundersList} />
-              </div>
-              : <div className="block-header">Фізичних осіб у складі засновників немає</div>
-            }
-            {currentUser.acc > 1 && editPerson === null && <div>
-              <Button
-                sx={{ mb: 3, ml: 3, mt: 3 }}
-                onClick={() => setEditPerson(newPersonData)}
-                variant="contained"
-                startIcon={<PersonAddIcon />}
-              >Додати нового співзасновника - фізичну особу
-              </Button>
-            </div>}
-            {editPerson !== null && <PersonEdit
-              person={editPerson}
-              personType={1}
-              updateEditing={updateEditing}
-              updateList={updateFoundersList}
-              isNewPerson={{ person: true, place: true }}
-              editor={currentUser.Id} />
-            }
-            {founders.filter(founders => founders.State === 1).length > 0 && <FormControlLabel
-              label="показати попередніх засновників - фізичних осіб"
-              control={<Switch
-                checked={oldFounders}
-                onChange={showOldFounders}
-                inputProps={{ 'aria-label': 'controlled' }} />}
-            />}
-            {oldFounders && <HeadsList source={founders.filter(founders => founders.State === 1)} role={false} active={false} sequr={false} buttons={false} />}
-            {foundersE.filter(foundersE => foundersE.State === 0).length > 0
-              ? <div>
-                <div className="block-header">Засновники - юридичні особи:</div>
-                <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 0)} active={true} />
-              </div>
-              : <div className="block-header">Юридичних осіб у складі засновників немає</div>
-            }
-            {currentUser.acc > 1 && <div>
-              <Button
-                sx={{ mb: 3, ml: 3, mt: 3 }}
-                variant="contained"
-                startIcon={<AddBusinessIcon />}
-              >Додати нового співзасновника - юридичну особу
-              </Button>
-            </div>}
-            {foundersE.filter(foundersE => foundersE.State === 1).length > 0 && <FormControlLabel
-              label="показати попередніх засновників - юридичних осіб"
-              control={<Switch
-                checked={oldFoundersE}
-                onChange={showOldFoundersE}
-                inputProps={{ 'aria-label': 'controlled' }} />}
-            />}
-            {oldFoundersE && <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 1)} active={false} />}
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            {heads.filter(heads => heads.State === 0).length > 0
-              ? <HeadsList source={heads.filter(heads => heads.State === 0)} role={true} active={true} sequr={false} buttons={true} updateList={updateHeadsList} />
-              : <div className="block-header">Керівників у підприємства на даний час немає</div>
-            }
-            {currentUser.acc > 1 && editPerson === null && <div>
-              <Button
-                sx={{ mb: 3, ml: 3, mt: 3 }}
-                onClick={() => setEditPerson(newPersonData)}
-                variant="contained"
-                startIcon={<PersonAddIcon />}
-              >Додати нового керівника
-              </Button>
-            </div>}
-            {editPerson !== null && <PersonEdit
-              person={editPerson}
-              personType={2}
-              updateEditing={updateEditing}
-              updateList={updateHeadsList}
-              isNewPerson={{ person: true, place: true }}
-              editor={currentUser.Id} />
-            }
-            {heads.filter(heads => heads.State === 1).length > 0 && <FormControlLabel
-              label="показати попередніх керівників"
-              control={<Switch
-                checked={oldHeads}
-                onChange={showOldHeads}
-                inputProps={{ 'aria-label': 'controlled' }} />}
-            />}
-            {oldHeads && <HeadsList source={heads.filter(heads => heads.State === 1)} role={true} active={false} sequr={false} buttons={false} />}
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <div className="rowInfo list-header">
-              <div className="license-item license-item__kateg">Катег.</div>
-              <div className="license-item license-item__number">Серія і номер</div>
-              <div className="license-item license-item__date">Діє з</div>
-              <div className="license-item license-item__date">по</div>
-              <div className="license-item license-item__state">Стан</div>
-            </div>
-            {licenses.map((item, index) =>
-              <div className="rowInfo" key={index}>
-                <div className="license-item license-item__kateg" title={item.LicName}>{item.Category}</div>
-                <div className="license-item license-item__number">{item.SerLicenze} {item.NumLicenze}</div>
-                <div className="license-item license-item__date" title={item.ReasonStart}>{checkDate(item.DateLicenz, '')}</div>
-                <div className="license-item license-item__date" title={item.ReasonStart}>
-                  {(new Date(item.DateClose) > new Date("2222-02-20"))
-                    ? "безтерміново"
-                    : checkDate(item.DateClose, '')
-                  }
+        ? editEnterpr
+          ? <EnterprEdit addNew={false} enterpr={enterpr} updateEditing={updateMainEditing} updateInfo={updateEnterprInfo} editor={currentUser.Id} />
+          : <div className="fullPage">
+            <h1 className="fullPage__name">{enterpr.FullName}</h1>
+            <AppBar position="static" color="default">
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="scrollable auto tabs example"
+              >
+                <Tab label="ЗАГАЛЬНЕ" disabled={Boolean((editPerson || editMode) && value !== 0)} {...a11yProps(0)} />
+                <Tab label="ЗАСНОВНИКИ" disabled={Boolean((editPerson || editMode) && value !== 1)} {...a11yProps(1)} />
+                <Tab label="КЕРІВНИКИ" disabled={Boolean((editPerson || editMode) && value !== 2)} {...a11yProps(2)} />
+                <Tab label="ЗАЯВИ" disabled={Boolean((editPerson || editMode) && value !== 3)} {...a11yProps(3)} />
+                {licenses.length > 0 && <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean((editPerson || editMode) && value !== 4)} {...a11yProps(4)} />}
+                <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 5)} {...a11yProps(5)} />
+                <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 6)} {...a11yProps(6)} />
+                <Tab label={"ПЕРЕВІРКИ (" + checkings.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 7)} {...a11yProps(7)} />
+              </Tabs>
+            </AppBar>
+            <TabPanel value={value} index={0}>
+              <MyModal visible={modal} setVisible={setModal}>
+                {enterpr.Shevron && <img src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />}
+              </MyModal>
+              {currentUser.acc > 1 && <Button sx={{ mb: 2 }} onClick={() => setEditEnterpr(true)} variant="contained" startIcon={<EditNoteIcon />}>Редагувати</Button>}
+              {enterprData.map((item, index) =>
+                item.fieldValue && <div className="rowInfo" key={index}>
+                  <div className="rowInfo__fieldName">{item.fieldName}:</div>
+                  <div className="rowInfo__fieldValue">{item.fieldValue}</div>
                 </div>
-                <div className="license-item license-item__state" title={item.ReasonClose}>
-                  {item.State === 0
-                    ? (new Date(item.DateClose) > new Date())
-                      ? licenseState[item.State]
-                      : "термін дії закінчився"
-                    : licenseState[item.State]
-                  }
+              )}
+              {currentUser.acc > 1 && enterpr.HideInfo && <div className="rowInfo">
+                <div className="rowInfo__fieldName">Службова інформація:</div>
+                <div className="rowInfo__fieldValue">{enterpr.HideInfo}</div>
+              </div>}
+              {enterpr.Shevron && <div className="rowInfo">
+                Шеврон або розпізнавальний знак на одязі персоналу охорони:
+                <img style={{ height: 40, marginLeft: 20, cursor: "pointer" }}
+                  onClick={showShevron}
+                  title="Натисніть щоб збільшити розмір зображення"
+                  src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />
+              </div>}
+              {enterpAfil.length > 0 && <div style={{ marginTop: 40 }}>
+                <EnterprList enterprs={enterpAfil} loading={false} title="Афільовані підприємства" titleSize={false} />
+              </div>}
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              {editPerson === null
+                ? founders.filter(founders => founders.State === 0).length > 0
+                  ? <div>
+                    {editPerson === null && editMode === null && <div className="block-header">Засновники - фізичні особи:</div>}
+                    <HeadsList
+                      source={founders.filter(founders => founders.State === 0)}
+                      role={false} active={true} sequr={false} buttons={true}
+                      updateList={updateFoundersList}
+                      updateEditMode={updateEditMode}
+                    />
+                  </div>
+                  : editPerson === null && editMode === null && <div className="block-header">Фізичних осіб у складі засновників немає</div>
+                : <PersonEdit
+                  person={editPerson}
+                  personType={1}
+                  simpleEdit={true}
+                  updateEditing={updateEditing}
+                  updateList={updateFoundersList}
+                  isNewPerson={{ person: true, place: true }}
+                  editor={currentUser.Id} />
+              }
+              {currentUser.acc > 1 && editPerson === null && editMode === null && <div>
+                <Button
+                  sx={{ mb: 3, ml: 3, mt: 3 }}
+                  onClick={() => setEditPerson(newPersonData)}
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                >Додати нового співзасновника - фізичну особу
+                </Button>
+              </div>}
+              {editPerson === null && editMode === null && founders.filter(founders => founders.State === 1).length > 0 && <FormControlLabel
+                label="показати попередніх засновників - фізичних осіб"
+                control={<Switch
+                  checked={oldFounders}
+                  onChange={showOldFounders}
+                  inputProps={{ 'aria-label': 'controlled' }} />}
+              />}
+              {editPerson === null && editMode === null && oldFounders && <HeadsList source={founders.filter(founders => founders.State === 1)} role={false} active={false} sequr={false} buttons={false} />}
+              {foundersE.filter(foundersE => foundersE.State === 0).length > 0
+                ? <div>
+                  {editPerson === null && editMode === null && <div className="block-header">Засновники - юридичні особи:</div>}
+                  <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 0)} active={true} />
                 </div>
+                : editPerson === null && editMode === null && <div className="block-header">Юридичних осіб у складі засновників немає</div>
+              }
+              {currentUser.acc > 1 && editPerson === null && editMode === null && <div>
+                <Button
+                  sx={{ mb: 3, ml: 3, mt: 3 }}
+                  variant="contained"
+                  startIcon={<AddBusinessIcon />}
+                >Додати нового співзасновника - юридичну особу
+                </Button>
+              </div>}
+              {editPerson === null && editMode === null && foundersE.filter(foundersE => foundersE.State === 1).length > 0 && <FormControlLabel
+                label="показати попередніх засновників - юридичних осіб"
+                control={<Switch
+                  checked={oldFoundersE}
+                  onChange={showOldFoundersE}
+                  inputProps={{ 'aria-label': 'controlled' }} />}
+              />}
+              {editPerson === null && editMode === null && oldFoundersE && <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 1)} active={false} />}
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              {editPerson === null
+                ? heads.filter(heads => heads.State === 0).length > 0
+                  ? <HeadsList source={heads.filter(heads => heads.State === 0)} role={true} active={true} sequr={false} buttons={true} updateList={updateHeadsList} updateEditMode={updateEditMode} />
+                  : <div className="block-header">Керівників у підприємства на даний час немає</div>
+                : <PersonEdit
+                  person={editPerson}
+                  personType={2}
+                  simpleEdit={true}
+                  updateEditing={updateEditing}
+                  updateList={updateHeadsList}
+                  isNewPerson={{ person: true, place: true }}
+                  editor={currentUser.Id} />
+              }
+              {currentUser.acc > 1 && editPerson === null && editMode === null && <div>
+                <Button
+                  sx={{ mb: 3, ml: 3, mt: 3 }}
+                  onClick={() => setEditPerson(newPersonData)}
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                >Додати нового керівника
+                </Button>
+              </div>}
+              {editPerson === null && editMode === null && heads.filter(heads => heads.State === 1).length > 0 && <FormControlLabel
+                label="показати попередніх керівників"
+                control={<Switch
+                  checked={oldHeads}
+                  onChange={showOldHeads}
+                  inputProps={{ 'aria-label': 'controlled' }} />}
+              />}
+              {editPerson === null && editMode === null && oldHeads && <HeadsList source={heads.filter(heads => heads.State === 1)} role={true} active={false} sequr={false} buttons={false} />}
+            </TabPanel>
+            <TabPanel value={value} index={3}>
+              <OrdersList source={orders} heads={uniqueHeads()} updateList={updateOrdersList} updateList2={updateLicensesList} />
+            </TabPanel>
+            <TabPanel value={value} index={4}>
+              <div className="rowInfo list-header">
+                <div className="license-item__kateg">Катег.</div>
+                <div className="license-item__number">Серія і номер</div>
+                <div className="license-item__date">Діє з</div>
+                <div className="license-item__date">по</div>
+                <div className="license-item__state">Стан</div>
               </div>
-            )}
-          </TabPanel>
-          <TabPanel value={value} index={4}>
-            {employees.length > 0
-              ? <HeadsList source={employees} role={true} sequr={true} buttons={false} />
-              : <div className="block-header">Персоналу охорони у підприємства на даний час немає</div>
-            }
-          </TabPanel>
-          <TabPanel value={value} index={5}>
-            {objects.length > 0
-              ? <ObjectsList source={objects} />
-              : <div className="block-header">Об'єктів під охороною підприємства на даний час немає</div>
-            }
-          </TabPanel>
-          <TabPanel value={value} index={6}>
-            {checkings.length > 0
-              ? <CheckList source={checkings} />
-              : <div className="block-header">Перевірок діяльності підприємства не було</div>
-            }
-          </TabPanel>
-        </div>
+              {licenses.map((item, index) =>
+                <div className="rowInfo" key={index}>
+                  <div className="license-item license-item__kateg" title={item.LicName}>{item.Category}</div>
+                  <div className="license-item license-item__number">{item.SerLicenze} {item.NumLicenze}</div>
+                  <div className="license-item license-item__date" title={item.ReasonStart}>{checkDate(item.DateLicenz, '')}</div>
+                  <div className="license-item license-item__date" title={item.ReasonStart}>
+                    {(new Date(item.DateClose) > new Date("2222-02-20"))
+                      ? "безтерміново"
+                      : checkDate(item.DateClose, '')
+                    }
+                  </div>
+                  <div className="license-item license-item__state" title={item.ReasonClose}>
+                    {item.State === 0
+                      ? (new Date(item.DateClose) > new Date())
+                        ? licenseState[item.State]
+                        : "термін дії закінчився"
+                      : licenseState[item.State]
+                    }
+                  </div>
+                </div>
+              )}
+            </TabPanel>
+            <TabPanel value={value} index={5}>
+              {employees.length > 0
+                ? <HeadsList source={employees} role={true} sequr={true} buttons={false} />
+                : <div className="block-header">Персоналу охорони у підприємства на даний час немає</div>
+              }
+            </TabPanel>
+            <TabPanel value={value} index={6}>
+              {objects.length > 0
+                ? <ObjectsList source={objects} />
+                : <div className="block-header">Об'єктів під охороною підприємства на даний час немає</div>
+              }
+            </TabPanel>
+            <TabPanel value={value} index={7}>
+              {checkings.length > 0
+                ? <CheckList source={checkings} />
+                : <div className="block-header">Перевірок діяльності підприємства не було</div>
+              }
+            </TabPanel>
+          </div>
         : <Error />
     : <Error />
 }

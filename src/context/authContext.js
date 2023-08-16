@@ -41,11 +41,18 @@ export const AuthContextProvider = ({ children }) => {
     await axios.post("/auth/logout", params);
   }
 
+  const [enterprList, setEnterprList] = useState([]);
+  const [searchValues, setSearchValues] = useState({ area: "0", license: 0, order: 0, region: 0, name: '', edrpou: '', address: '' });
+  const newEnterprList = (values, list) => {
+    setSearchValues(values);
+    setEnterprList(list);
+  }
+
   // useEffect(() => {
   //   localStorage.setItem("user", currentUser);
   // }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAuth, auth, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ currentUser, isAuth, auth, login, logout, enterprList, searchValues, newEnterprList }}>{children}</AuthContext.Provider>
   );
 }

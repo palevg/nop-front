@@ -118,12 +118,9 @@ a:active {
 }
 
 /* *** Peoples page *** */
-.searching-form {
-    width: 300px;
-}
-
 .buttons-top {
     display: flex;
+    justify-content: space-between;
     gap: 1em;
     margin-top: 8px;
 }

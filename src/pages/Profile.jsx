@@ -64,8 +64,8 @@ const Profile = () => {
   }
 
   return isAuth
-    ? <Paper classes={{ root: "profile_root" }}>
-      <Typography classes={{ root: "profile_title" }} variant="h4">Ваші персональні дані</Typography>
+    ? <Paper elevation={3} sx={{ maxWidth: 700, p: 3, ml: "auto", mr: "auto", mt: 3 }}>
+      <Typography sx={{ textAlign: "center", fontWeight: "bold", mb: 4 }} variant="h4">Ваші персональні дані</Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           sx={{ mb: 3 }}

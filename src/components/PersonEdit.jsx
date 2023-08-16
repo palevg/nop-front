@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
-import { checkDate } from "../utils/checkers";
+import { checkDate, isDateValid } from "../utils/checkers";
+import { workPlacesList } from "../utils/data";
 import { useForm } from 'react-hook-form';
 import { Paper, TextField, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, RadioGroup, Radio, FormControlLabel, Checkbox, Alert, AlertTitle } from "@mui/material";
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
@@ -13,10 +14,10 @@ import axios from '../axios';
 const filter = createFilterOptions();
 
 export const PersonEdit = (props) => {
-  const [valueBirth, setValueBirth] = useState(dayjs(props.person.Birth));
-  const [valuePasp, setValuePasp] = useState(dayjs(props.person.PaspDate));
-  const [dateEnter, setDateEnter] = useState(dayjs(props.person.DateEnter));
-  const [dateStartWork, setDateStartWork] = useState(dayjs(props.person.DateStartWork));
+  const [valueBirth, setValueBirth] = useState(props.isNewPerson.person ? null : dayjs(props.person.Birth));
+  const [valuePasp, setValuePasp] = useState(props.isNewPerson.person ? null : dayjs(props.person.PaspDate));
+  const [dateEnter, setDateEnter] = useState(props.isNewPerson.person ? null : dayjs(props.person.DateEnter));
+  const [dateStartWork, setDateStartWork] = useState(props.isNewPerson.person ? null : dayjs(props.person.DateStartWork));
   const [posada, setPosada] = useState(props.person.Posada);
   const [fotoUrl, setFotoUrl] = useState(props.person.PhotoFile);
   const inputFileRef = React.useRef(null);
@@ -26,11 +27,7 @@ export const PersonEdit = (props) => {
   const [openDialog, setOpenDialog] = useState(false);
   const radioGroupRef = React.useRef(null);
   const [dialogValue, setDialogValue] = React.useState('0');
-
-  const workPlacesList = [{ name: 'Генеральний директор' }, { name: 'Голова правління' }, { name: 'Директор' },
-  { name: 'Виконавчий директор' }, { name: 'Заступник генер. директора' }, { name: 'Заступник директора' },
-  { name: 'Заст.директора з охорон. діяльності' }, { name: 'Фахівець з організації охорони' },
-  { name: 'Головний спеціаліст' }, { name: 'Головний бухгалтер' }, { name: 'Бухгалтер' }, { name: 'Підприємець' }];
+  const titleText = " особи зазвичай не змінюється, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба це відредагувати - зробіть подвійний клік.";
 
   const { register, handleSubmit, getValues, setValue, formState: { errors, isValid } } = useForm({
     defaultValues: {
@@ -62,26 +59,26 @@ export const PersonEdit = (props) => {
         formData.append('image', event.target.files[0], new Date().getTime() + event.target.files[0].name.slice(event.target.files[0].name.lastIndexOf('.')));
         const { data } = await axios.post('/upload', formData);
         setFotoUrl(data.url);
-      } else alert('Ви вибрали невірний тип файлу!');
+      } else window.alert('Ви вибрали невірний тип файлу!');
     } catch (err) {
       console.warn(err);
-      alert('Помилка при завантаженні файлу!');
+      window.alert('Помилка при завантаженні файлу!');
     }
   };
 
   const setValuesToNull = (obj) => {
     if (obj.indnum === '') obj.indnum = null;
-    if (props.person.Birth === null && isNaN(obj.birthDate)) obj.birthDate = null;
+    if (props.person.Birth === null && !isDateValid(obj.birthDate)) obj.birthDate = null;
     if (obj.birthPlace === '') obj.birthPlace = null;
     if (obj.livePlace === '') obj.livePlace = null;
     if (obj.pasport === '') obj.pasport = null;
-    if (props.person.PaspDate === null && isNaN(obj.paspDate)) obj.paspDate = null;
+    if (props.person.PaspDate === null && !isDateValid(obj.paspDate)) obj.paspDate = null;
     if (obj.paspPlace === '') obj.paspPlace = null;
     if (obj.osvita === '') obj.osvita = null;
     if (obj.statutPart === '') obj.statutPart = null;
-    if (props.person.DateEnter === null && isNaN(obj.dateEnter)) obj.dateEnter = null;
+    if (props.person.DateEnter === null && !isDateValid(obj.dateEnter)) obj.dateEnter = null;
     if (obj.posada === '') obj.posada = null;
-    if (props.person.DateStartWork === null && isNaN(obj.dateStartWork)) obj.dateStartWork = null;
+    if (props.person.DateStartWork === null && !isDateValid(obj.dateStartWork)) obj.dateStartWork = null;
   }
 
   const isDataChanged = (values) => {
@@ -126,7 +123,7 @@ export const PersonEdit = (props) => {
         }
       })
       .catch(err => {
-        alert(err.response.data);
+        window.alert(err.response.data);
       });
   }
 
@@ -207,10 +204,10 @@ export const PersonEdit = (props) => {
         linkToPatch += "new";
         await axios.post(linkToPatch, values)
           .then(res => {
-            alert(res.data);
+            window.alert(res.data);
           })
           .catch(err => {
-            alert(err.response.data);
+            window.alert(err.response.data);
           });
       } else {
         if (props.personType > 0) linkToPatch += "edit";
@@ -223,10 +220,10 @@ export const PersonEdit = (props) => {
         }
         await axios.patch(linkToPatch, values)
           .then(res => {
-            alert(res.data);
+            window.alert(res.data);
           })
           .catch(err => {
-            alert(err.response.data);
+            window.alert(err.response.data);
           });
       }
       await axios.get(linkToReload + (props.personType === 0 ? props.person.Id : props.person.Enterprise))
@@ -234,17 +231,24 @@ export const PersonEdit = (props) => {
           props.updateList(props.personType === 0 ? res.data[0] : res.data);
         })
         .catch(err => {
-          alert(err.response.data);
+          window.alert(err.response.data);
         });
     } else window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
     props.updateEditing(null);
+    if (!props.simpleEdit) props.updateEditMode(null);
   };
 
   const handleCancelClick = () => {
     const values = getValues();
-    isDataChanged(values) > 0
-      ? window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?') && props.updateEditing(null)
-      : props.updateEditing(null)
+    if (isDataChanged(values) > 0) {
+      if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
+        props.updateEditing(null);
+        if (!props.simpleEdit) props.updateEditMode(null);
+      }
+    } else {
+      props.updateEditing(null);
+      if (!props.simpleEdit) props.updateEditMode(null);
+    }
   }
 
   return (<div>
@@ -283,7 +287,7 @@ export const PersonEdit = (props) => {
         </DialogActions>
       </Dialog>
     </Box>
-    <Paper classes={{ root: "profile_root" }}>
+    <Paper elevation={3} sx={{ maxWidth: 700, p: 3, ml: "auto", mr: "auto", mb: 3 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="person-foto__edit">
           <img className="fullPage__person-foto"
@@ -391,7 +395,7 @@ export const PersonEdit = (props) => {
           label="Прізвище, ім'я та по-батькові"
           disabled={enableFields}
           onDoubleClick={() => { changeEnabling() }}
-          title={props.isNewPerson.person ? "" : "ПІБ особи змінюється рідко, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба їх відредагувати - зробіть подвійний клік."}
+          title={props.isNewPerson.person ? "" : "ПІБ" + titleText}
           error={Boolean(errors.fullName?.message)}
           helperText={errors.fullName?.message}
           {...register('fullName', {
@@ -411,6 +415,7 @@ export const PersonEdit = (props) => {
             label="Дата народження"
             disabled={enableFields}
             onDoubleClick={() => { changeEnabling() }}
+            title={props.isNewPerson.person ? "" : "Дата народження" + titleText}
             value={valueBirth}
             onChange={(newValue) => setValueBirth(newValue)}
             {...register('birthDate', {
@@ -425,6 +430,7 @@ export const PersonEdit = (props) => {
           label="Ідентифікаційний код"
           disabled={enableFields}
           onDoubleClick={() => { changeEnabling() }}
+          title={props.isNewPerson.person ? "" : "Ідентифікаційний код" + titleText}
           InputLabelProps={{ shrink: values.indnum ? true : undefined }}
           error={Boolean(errors.indnum?.message)}
           helperText={errors.indnum?.message}
@@ -441,6 +447,7 @@ export const PersonEdit = (props) => {
           label="Місце народження"
           disabled={enableFields}
           onDoubleClick={() => { changeEnabling() }}
+          title={props.isNewPerson.person ? "" : "Місце народження" + titleText}
           InputLabelProps={{ shrink: values.birthPlace ? true : undefined }}
           error={Boolean(errors.birthPlace?.message)}
           helperText={errors.birthPlace?.message}
