@@ -1,12 +1,12 @@
 import axios from '../axios';
 
-const regions = ["вся Україна"];
+const arrRegions = ["вся Україна"];
 const getRegionNames = async () => {
   await axios.get("/regions")
     .then(res => {
       if (res.data.length > 0) {
         res.data.forEach(item => {
-          regions.push(item.NameRegion)
+          arrRegions.push(item.NameRegion)
         });
       }
     })
@@ -15,11 +15,62 @@ const getRegionNames = async () => {
     });
 }
 getRegionNames();
-export const regionNames = regions;
+export const regionNames = arrRegions;
 
 export const taxState = ["спрощена", "загальна", "невідомо"];
 
 export const riskState = ["високий", "середній", "незначний", "невідомо"];
+
+const arrOPForm = [];
+const getOPForms = async () => {
+  await axios.get("/opforms")
+    .then(res => {
+      if (res.data.length > 0) {
+        res.data.forEach(item => {
+          arrOPForm.push(item)
+        });
+      }
+    })
+    .catch(err => {
+      window.alert(err.response.data);
+    });
+}
+getOPForms();
+export const opForms = arrOPForm;
+
+const arrFormVl = [];
+const getFormVlasn = async () => {
+  await axios.get("/formvlasn")
+    .then(res => {
+      if (res.data.length > 0) {
+        res.data.forEach(item => {
+          arrFormVl.push(item)
+        });
+      }
+    })
+    .catch(err => {
+      window.alert(err.response.data);
+    });
+}
+getFormVlasn();
+export const formVlasn = arrFormVl;
+
+const arrVidDijal = [];
+const getVidDijal = async () => {
+  await axios.get("/activities")
+    .then(res => {
+      if (res.data.length > 0) {
+        res.data.forEach(item => {
+          arrVidDijal.push(item)
+        });
+      }
+    })
+    .catch(err => {
+      window.alert(err.response.data);
+    });
+}
+getVidDijal();
+export const activities = arrVidDijal;
 
 export const orderType = ["видачі ліцензії", "видачі дубліката ліцензії", "переоформлення ліцензії", "видачі засвідченої копії ліцензії", "переоформлення засвідченої копії ліцензії"];
 

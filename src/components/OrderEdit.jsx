@@ -40,6 +40,7 @@ export const OrderEdit = (props) => {
   }
 
   const onSubmit = async (values) => {
+    if (values.humanId === 0) values.humanId = props.heads[0].HumanId;
     if (isDataChanged(values)) {
       values.editor = props.editor;
       values.id = props.order.Id;

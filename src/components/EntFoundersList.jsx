@@ -11,15 +11,9 @@ export const EntFoundersList = (props) => {
             <div>{item.Name}</div>
             {item.OKPO !== null && <div className="">Реєстраційний код: {item.OKPO}</div>}
           </div>
-          <div className="rowFounderE__one-row">
-            <div className="rowFounderE__row-name">Адреса:</div>
-            <div>{item.Address}</div>
-          </div>
-          <div className="rowFounderE__one-row">
-            <div className="rowFounderE__row-name">Представник:</div>
-            <div>{item.Predstavnik}</div>
-          </div>
-          {item.StatutPart !== null && <div>Частка у Статутному капіталі: {checkStatut(item.StatutPart)}{checkDate(item.DateEnter, " з ")}
+          <div><span style={{ fontWeight: 300 }}>Адреса:</span> {item.Address}</div>
+          <div><span style={{ fontWeight: 300 }}>Представник:</span> {item.Predstavnik}</div>
+          {item.StatutPart !== null && <div><span style={{ fontWeight: 300 }}>Частка у Статутному капіталі:</span> {checkStatut(item.StatutPart)}{checkDate(item.DateEnter, " з ")}
             {props.active
               ? ''
               : checkDate(item.DateExit, " по ")

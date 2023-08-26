@@ -13,29 +13,40 @@
     background-color: #ADD8E6;
 }
 
-.rowInfo {
+/* Enterprise page */
+.flex-end {
     display: flex;
     align-items: flex-end;
-    margin-bottom: 5px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
+}
+
+.list-item {
+    padding-top: 8px;
     border-bottom: 1px solid gray;
     width: 100%;
 }
 
-.rowInfo__fieldName {
-    width: 320px;
+.list-item,
+.block-header,
+.rowFounderE {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
 }
 
-.rowInfo__fieldValue {
+.list-item__fieldName {
+    min-width: 248px;
+}
+
+.list-item__fieldNamePers {
+    min-width: 200px;
+}
+
+.list-item__fieldValue {
     width: 100%;
 }
 
 .block-header {
     margin: 20px auto;
     width: 100%;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
     font-size: 22px;
 }
 
@@ -45,80 +56,69 @@
     color: #000080;
 }
 
-.rowInfo__humanName {
+.list-item__humanName {
     width: 480px;
 }
 
-.rowInfo__humanState {
+.list-item__humanState {
     width: 100%;
     text-align: center;
 }
 
 .rowFounderE {
     margin-bottom: 5px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
     border-bottom: 1px solid gray;
 }
 
 .rowFounderE__entr-name {
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.rowFounderE__one-row {
-    display: flex;
-}
-
-.rowFounderE__row-name {
-    width: 150px;
-}
-
-.license-item {
+.list-item__center {
     text-align: center;
 }
 
-.order-item__date {
+.list-item__order-date {
     min-width: 100px;
 }
 
-.order-item__number {
-    min-width: 90px;
-    margin-left: 5px;
-}
-
-.order-item__state {
+.list-item__order-state {
     width: 100%;
-}
-
-.order-item__state {
     margin-left: 5px;
 }
 
-.license-item__kateg {
+.list-item__buttons2 {
+    opacity: 0.2;
+    transition: opacity .4s;
+}
+
+.list-item__buttons4 {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 112px;
+    margin-left: 5px;
+    opacity: 0.2;
+    transition: opacity .4s;
+}
+
+.list-item__lic-kateg {
     width: 70px;
 }
 
-.license-item__number {
+.list-item__lic-number {
     width: 130px;
     margin-left: 5px;
 }
 
-.license-item__date {
+.list-item__lic-date {
     width: 120px;
     margin-left: 5px;
 }
 
-.license-item__state {
+.list-item__lic-state {
     width: 200px;
     margin-left: 20px;
-}
-
-.list-item {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    border-bottom: 1px solid gray;
 }
 
 .list-item__visible {
@@ -136,22 +136,30 @@
     color: #000080;
     font-weight: bold;
     cursor: pointer;
+    opacity: 0.2;
+    transition: opacity .4s;
+}
+
+.list-item:hover .list-item__switch,
+.list-item:hover .list-item__buttons2,
+.list-item:hover .list-item__buttons4 {
+    opacity: 1;
 }
 
 .list-item__obj-type {
     width: 300px;
 }
 
-.list-item__address {
+.list-item__obj-addr {
     margin-left: 5px;
     width: 460px;
 }
 
-.list-item__date {
+.list-item__obj-date-header {
     width: 190px;
 }
 
-.list-item__date-info {
+.list-item__obj-date {
     width: 90px;
     margin-left: 5px;
     text-align: right;
@@ -180,21 +188,22 @@
     justify-content: space-between;
 }
 
-.rowInfo__check-type {
+.list-item__check-type {
     width: 400px;
 }
 
-.rowInfo__check-doc {
+.list-item__check-doc {
     width: 280px;
     text-align: center;
     margin-left: 5px;
 }
 
-.rowInfo__checker {
+.list-item__checker {
     width: 150px;
     margin-left: 5px;
 }
 
+/* Person page */
 .fullPage__person-info {
     padding: 15px;
 }
@@ -243,6 +252,31 @@
     text-align: center;
 }
 
+.dialog-wrap {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+
+.dialog-wrap__content {
+    max-height: 400px;
+    width: 100%;
+}
+
+.dialog-wrap__item {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.dialog-wrap__item:hover {
+    font-weight: 600;
+}
+
+.dialog-wrap__item input {
+    margin-right: 8px;
+}
+
 @media (max-width: 767px) {
     .person-posada__edit {
         flex-wrap: wrap;
@@ -258,19 +292,19 @@
         width: 220px;
     }
 
-    .list-item__address {
+    .list-item__obj-addr {
         width: 340px;
     }
 
-    .rowInfo__check-type {
+    .list-item__check-type {
         width: 300px;
     }
 
-    .rowInfo__check-doc {
+    .list-item__check-doc {
         width: 200px;
     }
 
-    .rowInfo__checker {
+    .list-item__checker {
         width: 150px;
     }
 }
@@ -280,44 +314,39 @@
         width: 100%;
     }
 
-    .rowInfo__fieldName {
-        width: 280px;
+    .list-item__fieldName {
+        min-width: 220px;
     }
 
     .block-header {
         font-size: 20px;
     }
 
-    .rowInfo__humanName {
+    .list-item__humanName {
         width: 280px;
     }
 
-    .license-item,
     .list-item {
         font-size: 14px;
     }
 
-    .order-item__date {
+    .list-item__order-date {
         min-width: 80px;
     }
-    
-    .order-item__number {
-        min-width: 70px;
-    }
-    
-    .license-item__kateg {
+
+    .list-item__lic-kateg {
         width: 60px;
     }
 
-    .license-item__number {
+    .list-item__lic-number {
         width: 120px;
     }
 
-    .license-item__date {
+    .list-item__lic-date {
         width: 110px;
     }
 
-    .license-item__state {
+    .list-item__lic-state {
         margin-left: 14px;
         width: 160px;
     }
@@ -326,7 +355,7 @@
         width: 150px;
     }
 
-    .list-item__address {
+    .list-item__obj-addr {
         width: fit-content;
     }
 
@@ -334,15 +363,15 @@
         font-size: 12px;
     }
 
-    .rowInfo__check-type {
+    .list-item__check-type {
         width: 230px;
     }
 
-    .rowInfo__check-doc {
+    .list-item__check-doc {
         width: fit-content;
     }
 
-    .rowInfo__checker {
+    .list-item__checker {
         width: 140px;
     }
 
@@ -358,7 +387,7 @@
 }
 
 @media (min-width: 481px) {
-    .rowInfo__buttons {
+    .list-item__buttons2 {
         display: flex;
     }
 }
@@ -372,54 +401,49 @@
         font-size: 24px;
     }
 
-    .rowInfo,
+    .list-item,
     .rowFounderE {
         font-size: 14px;
     }
 
-    .rowInfo__fieldName {
-        width: 220px;
+    .list-item__fieldName {
+        min-width: 112px;
     }
 
     .block-header {
         font-size: 18px;
     }
 
-    .rowInfo__humanName {
+    .list-item__humanName {
         width: 250px;
     }
 
-    .license-item,
     .list-item {
         font-size: 12px;
     }
 
-    .order-item__date {
+    .list-item__order-date {
         min-width: 70px;
     }
-    
-    .order-item__number {
-        min-width: 50px;
-    }
-    
-    .order-item__state {
-        min-width: 90px;
-        width: 100%;
+
+    .list-item__buttons4 {
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
-    .license-item__kateg {
+    .list-item__lic-kateg {
         width: 50px;
     }
 
-    .license-item__number {
+    .list-item__lic-number {
         width: 110px;
     }
 
-    .license-item__date {
+    .list-item__lic-date {
         width: 100px;
     }
 
-    .license-item__state {
+    .list-item__lic-state {
         margin-left: 10px;
         width: 100px;
     }
@@ -432,11 +456,11 @@
         width: fit-content;
     }
 
-    .list-item__address {
+    .list-item__obj-addr {
         width: fit-content;
     }
 
-    .list-item__date-info {
+    .list-item__obj-date {
         width: 70px;
     }
 
@@ -444,15 +468,15 @@
         font-size: 10px;
     }
 
-    .rowInfo__check-type {
+    .list-item__check-type {
         width: 120px;
     }
 
-    .rowInfo__check-doc {
+    .list-item__check-doc {
         width: 90px;
     }
 
-    .rowInfo__checker {
+    .list-item__checker {
         width: 100px;
     }
 

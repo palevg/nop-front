@@ -95,9 +95,9 @@ export const HeadsList = (props) => {
       </Box>
       {editPerson === null
         ? <div>
-          <div className="rowInfo list-header">
-            <div className="rowInfo__humanName">Прізвище, ім'я та по-батькові</div>
-            <div className="rowInfo__humanState">{
+          <div className="list-item flex-end list-header">
+            <div className="list-item__humanName">Прізвище, ім'я та по-батькові</div>
+            <div className="list-item__humanState">{
               props.sequr
                 ? "Посада"
                 : props.role
@@ -110,9 +110,9 @@ export const HeadsList = (props) => {
             }</div>
           </div>
           {props.source.map((item, index) =>
-            <div className="rowInfo editable" key={index} >
-              <div className="rowInfo__humanName"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
-              <div className="rowInfo__humanState">{
+            <div className="list-item flex-end" key={index} >
+              <div className="list-item__humanName"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
+              <div className="list-item__humanState">{
                 props.sequr
                   ? item.Posada
                   : props.role
@@ -128,7 +128,7 @@ export const HeadsList = (props) => {
                       : checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ") + checkDate(item.DateExit, " по ")
               }</div>
               {currentUser.acc > 1 && props.buttons &&
-                <div className="rowInfo__buttons">
+                <div className="list-item__buttons2">
                   <Tooltip title="Редагувати дані">
                     <IconButton size="small" color="primary" aria-label="edit" onClick={handleEdit.bind(null, item)}>
                       <EditNoteIcon fontSize="inherit" />

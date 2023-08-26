@@ -79,9 +79,9 @@ const Person = () => {
               <div>
                 {personFields.map((item, index) =>
                   <div key={index}>
-                    {item.fieldValue !== null && <div className="rowInfo">
-                      <div className="rowInfo__fieldName">{item.fieldName}:</div>
-                      <div className="rowInfo__fieldValue">{item.fieldValue}</div>
+                    {item.fieldValue !== null && <div className="list-item flex-end">
+                      <div className="list-item__fieldNamePers">{item.fieldName}:</div>
+                      <div className="list-item__fieldValue">{item.fieldValue}</div>
                     </div>
                     }
                   </div>
@@ -90,11 +90,12 @@ const Person = () => {
               {person.PhotoFile && <img className="fullPage__person-foto__big" src={`${process.env.REACT_APP_API_URL}/uploads/${person.PhotoFile}`} alt={person.Name} />}
             </div>
             {currentUser.acc > 1 && editPerson === null && <div>
-              <Button className="enterpr__add-btn" onClick={() => setEditPerson(person)} variant="contained" startIcon={<EditIcon />}>Редагувати дані про особу</Button>
+              <Button sx={{ mt: 2 }} onClick={() => setEditPerson(person)} variant="contained" startIcon={<EditIcon />}>Редагувати дані про особу</Button>
             </div>}
             {editPerson !== null && <PersonEdit
               person={editPerson}
               personType={0}
+              simpleEdit={true}
               updateEditing={updateEditing}
               updateList={updatePerson}
               isNewPerson={{ person: false, place: false }}

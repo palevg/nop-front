@@ -14,14 +14,15 @@ import axios from '../axios';
 const filter = createFilterOptions();
 
 export const PersonEdit = (props) => {
-  const [valueBirth, setValueBirth] = useState(props.isNewPerson.person ? null : dayjs(props.person.Birth));
-  const [valuePasp, setValuePasp] = useState(props.isNewPerson.person ? null : dayjs(props.person.PaspDate));
-  const [dateEnter, setDateEnter] = useState(props.isNewPerson.person ? null : dayjs(props.person.DateEnter));
-  const [dateStartWork, setDateStartWork] = useState(props.isNewPerson.person ? null : dayjs(props.person.DateStartWork));
+  const [newPerson, setNewPerson] = useState(props.isNewPerson.person);
+  const [valueBirth, setValueBirth] = useState(newPerson ? null : dayjs(props.person.Birth));
+  const [valuePasp, setValuePasp] = useState(newPerson ? null : dayjs(props.person.PaspDate));
+  const [dateEnter, setDateEnter] = useState(newPerson ? null : dayjs(props.person.DateEnter));
+  const [dateStartWork, setDateStartWork] = useState(newPerson ? null : dayjs(props.person.DateStartWork));
   const [posada, setPosada] = useState(props.person.Posada);
   const [fotoUrl, setFotoUrl] = useState(props.person.PhotoFile);
   const inputFileRef = React.useRef(null);
-  const [enableFields, setEnableFields] = useState(!props.isNewPerson.person);
+  const [enableFields, setEnableFields] = useState(!newPerson);
   const [sameInfoList, setSameInfoList] = useState([]);
   const [sameInfoShort, setSameInfoShort] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -154,7 +155,7 @@ export const PersonEdit = (props) => {
       setValue('paspPlace', person[0].PaspPlace);
       setValue('osvita', person[0].Osvita);
       props.person.HumanId = person[0].Id;
-      props.isNewPerson.person = false;
+      setNewPerson(false);
     } else {
       setFotoUrl(null);
       setValue('foto', null);
@@ -168,12 +169,12 @@ export const PersonEdit = (props) => {
       setValuePasp(null);
       setValue('paspPlace', null);
       setValue('osvita', null);
-      props.isNewPerson.person = true;
+      setNewPerson(true);
     }
   };
 
   const changeEnabling = () => {
-    if (!props.isNewPerson.person) {
+    if (!newPerson) {
       if (enableFields && window.confirm('Вам дійсно потрібно відредагувати цю інформацію?')) setEnableFields(false);
     }
   }
@@ -200,7 +201,7 @@ export const PersonEdit = (props) => {
         values.personType = 2;
         linkToReload = "/heads/";
       }
-      if (props.isNewPerson.person) {
+      if (newPerson) {
         linkToPatch += "new";
         await axios.post(linkToPatch, values)
           .then(res => {

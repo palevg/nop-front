@@ -217,10 +217,10 @@ export const OrdersList = (props) => {
     {
       editOrder === null
         ? <div>
-          <div className="rowInfo list-header">
-            <div className="order-item__date" style={{ marginLeft: 28 }}>Дата</div>
-            <div className="order-item__number">Реєстр. номер</div>
-            <div className="order-item__state">Стан</div>
+          <div className="list-item flex-end list-header list-item__center">
+            <div className="list-item__order-date" style={{ marginLeft: 28 }}>Дата</div>
+            <div className="list-item__order-state">Стан</div>
+            {currentUser.acc > 1 && <div className="list-item__buttons4"/>}
           </div>
           {props.source.map((item, index) =>
             <div className="list-item" key={index}>
@@ -229,13 +229,12 @@ export const OrdersList = (props) => {
                   ? <label className="list-item__switch" htmlFor={"showOrderPart" + index} id={"labshowOrderPart" + index} title="Показати розширену інформацію">⊕</label>
                   : <div className="list-item__switch" />
                 }
-                <div className="list-item__visible-data">
-                  <div className="license-item order-item__date">{checkDate(item.DateZajav, '')}</div>
-                  <div className="license-item order-item__number">{item.NumZajav}</div>
-                  <div className="license-item order-item__state">{orderState[item.State]}</div>
+                <div className="list-item__visible-data list-item__center">
+                  <div className="list-item__order-date">{checkDate(item.DateZajav, '')}</div>
+                  <div className="list-item__order-state">{orderState[item.State]}</div>
                 </div>
                 {currentUser.acc > 1 &&
-                  <div className="rowInfo__buttons">
+                  <div className="list-item__buttons4">
                     <Tooltip title="Редагувати">
                       <IconButton size="small" color="primary" aria-label="edit" onClick={handleEdit.bind(null, item)}>
                         <EditIcon fontSize="inherit" />
@@ -261,6 +260,7 @@ export const OrdersList = (props) => {
               <input className="list-item__checkbox" id={"showOrderPart" + index} type="checkbox" onClick={handleChange} />
               <div className="list-item__invisible">
                 <div>Заява щодо {orderType[item.OrderType]} категорії {item.Category}</div>
+                {item.NumZajav !== null && <div>Реєстраційний номер: {item.NumZajav}</div>}
                 {item.HumanId !== 0 && <div>Подавач: <Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>}
                 {item.Options === null || item.Options === '' ? <></> : <div>Додаткова інформація: {item.Options}</div>}
               </div>

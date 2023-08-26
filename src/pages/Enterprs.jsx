@@ -25,10 +25,10 @@ const Enterprs = () => {
   const [dataToSearch] = useState(searchValues);
 
   const newEnterprData = {
-    Ident: null, DateCreate: null, KeyName: null, FullName: null, Region: 11, StatutSize: null,
-    AddressDeUre: null, AddressDeFacto: null, Phones: null, Faxes: null,
-    RosRah: null, RosUst: null, RosMFO: null, AfilEnterp: null, Podatok: 2, StateRisk: 3,
-    AddInfo: null, HideInfo: null, Shevron: null
+    Ident: null, DateCreate: null, KeyName: null, FullName: null, Region: 11, OPForm: 19,
+    FormVlasn: 8, VidDijal: 68, StatutSize: null, AddressDeUre: null, AddressDeFacto: null,
+    Phones: null, Faxes: null, RosRah: null, RosUst: null, RosMFO: null, AfilEnterp: null,
+    Podatok: 2, StateRisk: 3, AddInfo: null, HideInfo: null, Shevron: null
   }
 
   const onSubmit = () => {
@@ -52,7 +52,7 @@ const Enterprs = () => {
 
   return isAuth
     ? editEnterpr
-      ? <EnterprEdit addNew={true} enterpr={newEnterprData} updateEditing={updateEditing} editor={currentUser.Id} />
+      ? <EnterprEdit addNew={true} enterpr={newEnterprData} afil={[]} updateEditing={updateEditing} editor={currentUser.Id} />
       : <div className="list-page">
         <Dialog maxWidth="xs" open={openDialog}>
           <Box sx={{ width: 300 }}>

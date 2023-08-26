@@ -6,12 +6,13 @@
     box-sizing: border-box;
 }
 
-body {
+body, .enterpr__font {
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
 }
 
-a, .menu-link:hover {
+a,
+.menu-link:hover {
     text-decoration: none;
 }
 
@@ -181,30 +182,38 @@ a:active {
     .home {
         margin-top: 80px;
     }
+
     .home__items {
         margin-top: 70px;
     }
+
     .home__item {
         font-size: 16px;
         height: 180px;
         width: 230px;
     }
+
     .list-page {
         width: 100%;
         padding: 0 10px;
     }
+
     .person-item__name {
         width: 70%;
     }
+
     .person-item__id {
         width: 90px;
     }
+
     .person-item__birth {
         width: 80px;
     }
+
     .person-item__adr {
         display: none;
     }
+
     .buttons-top__new {
         min-width: 170px;
     }
@@ -214,42 +223,53 @@ a:active {
     .home {
         margin-top: 50px;
     }
+
     .home h1,
     .page-header__text {
         font-size: 24px;
     }
+
     .home__items {
         display: block;
         margin-top: 50px;
     }
+
     .home__item {
         font-size: 16px;
         height: 120px;
         width: 230px;
         margin: 0 auto 20px;
     }
+
     .list-page {
         width: 100%;
         padding: 0 4px;
     }
+
     .peoples-table {
         font-size: 14px;
     }
+
     .person-item__name {
         width: 70%;
     }
+
     .person-item__id {
         width: 70px;
     }
+
     .person-item__birth {
         width: 60px;
     }
+
     .person-item__adr {
         display: none;
     }
+
     .buttons-top {
         display: block;
     }
+
     .buttons-top__new {
         margin-top: 8px;
     }

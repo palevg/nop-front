@@ -12,9 +12,9 @@ export const PlacesList = (props) => {
           ? "Підприємства, де особа є/була у числі персоналу охорони"
           : "Підприємства, де особа є/була у складі засновників"
       }</h3>
-      <div className="rowInfo list-header">
-        <div className="rowInfo__humanName">Підприємство</div>
-        <div className="rowInfo__humanState">{
+      <div className="list-item flex-end list-header">
+        <div className="list-item__humanName">Підприємство</div>
+        <div className="list-item__humanState">{
           props.sequr
             ? "Посада"
             : props.role
@@ -23,9 +23,9 @@ export const PlacesList = (props) => {
         }</div>
       </div>
       {props.source.map((item, index) =>
-        <div className="rowInfo" key={index}>
-          <div className="rowInfo__humanName"><Link to={`/enterprs/${item.Enterprise}`}>{item.FullName}</Link></div>
-          <div className="rowInfo__humanState">{
+        <div className="list-item flex-end" key={index}>
+          <div className="list-item__humanName"><Link to={`/enterprs/${item.Enterprise}`}>{item.FullName}</Link></div>
+          <div className="list-item__humanState">{
             props.sequr
               ? item.Posada
               : props.role

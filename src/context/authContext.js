@@ -23,7 +23,7 @@ export const AuthContextProvider = ({ children }) => {
         setIsAuth(true);
       })
       .catch(err => {
-        alert('Не вдалося авторизуватися!');
+        window.alert(err.response.data.message);
         // if (err.response) {
         //   // client received an error response (5xx, 4xx)
         // } else if (err.request) {
@@ -34,18 +34,20 @@ export const AuthContextProvider = ({ children }) => {
       });
   }
 
+  const [enterprList, setEnterprList] = useState([]);
+  const defaultEntSearch = { area: "0", license: 0, order: 0, region: 0, name: '', edrpou: '', address: '' }
+  const [searchValues, setSearchValues] = useState(defaultEntSearch);
+  const newEnterprList = (values, list) => {
+    setSearchValues(values);
+    setEnterprList(list);
+  }
+
   const logout = async (params) => {
     window.localStorage.removeItem("token");
     setCurrentUser(null);
     setIsAuth(false);
+    newEnterprList(defaultEntSearch, []);
     await axios.post("/auth/logout", params);
-  }
-
-  const [enterprList, setEnterprList] = useState([]);
-  const [searchValues, setSearchValues] = useState({ area: "0", license: 0, order: 0, region: 0, name: '', edrpou: '', address: '' });
-  const newEnterprList = (values, list) => {
-    setSearchValues(values);
-    setEnterprList(list);
   }
 
   // useEffect(() => {
@@ -53,6 +55,6 @@ export const AuthContextProvider = ({ children }) => {
   // }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAuth, auth, login, logout, enterprList, searchValues, newEnterprList }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ currentUser, isAuth, auth, login, enterprList, searchValues, newEnterprList, logout }}>{children}</AuthContext.Provider>
   );
 }

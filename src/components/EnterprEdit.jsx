@@ -3,19 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
-import { regionNames, taxState, riskState } from "../utils/data";
+import { regionNames, opForms, formVlasn, activities, taxState, riskState } from "../utils/data";
 import { useForm } from 'react-hook-form';
-import { Paper, TextField, InputAdornment, Button, MenuItem, Box, Typography } from "@mui/material";
+import { Paper, TextField, InputAdornment, Button, MenuItem, Box, Typography, List, ListItem, IconButton, ListItemAvatar, ListItemText, Avatar } from "@mui/material";
+import SecurityIcon from '@mui/icons-material/Security';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import axios from '../axios';
+import { EnterprsAfil } from "./EnterprsAfil";
 
 export const EnterprEdit = (props) => {
   const navigate = useNavigate();
   const [valueDateCreate, setValueDateCreate] = useState(props.enterpr.DateCreate === null ? null : dayjs(props.enterpr.DateCreate));
   const [shevronUrl, setShevronUrl] = useState(props.enterpr.Shevron);
   const inputFileRef = React.useRef(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const updateEditing = (value) => { setOpenDialog(value); }
+  const [listAfilEnt, setListAfilEnt] = useState(props.afil);
+  const updateAfilEnterpr = (value) => { setListAfilEnt(value); }
 
   const { register, handleSubmit, getValues, setValue, formState: { errors, isValid } } = useForm({
     defaultValues: {
@@ -24,6 +31,9 @@ export const EnterprEdit = (props) => {
       keyName: props.enterpr.KeyName,
       fullName: props.enterpr.FullName,
       region: props.enterpr.Region,
+      opForm: props.enterpr.OPForm,
+      formVlasn: props.enterpr.FormVlasn,
+      vidDijal: props.enterpr.VidDijal,
       statutSize: props.enterpr.StatutSize,
       addressDeUre: props.enterpr.AddressDeUre,
       addressDeFacto: props.enterpr.AddressDeFacto,
@@ -61,7 +71,7 @@ export const EnterprEdit = (props) => {
     if (props.enterpr.DateCreate === null && !isDateValid(obj.dateCreate)) obj.dateCreate = null;
     if (obj.keyName === '') obj.keyName = null;
     if (obj.fullName === '') obj.fullName = null;
-    if (obj.region === '') obj.region = null;
+    // if (obj.region === '') obj.region = null;
     if (obj.statutSize === '') obj.statutSize = null;
     if (obj.addressDeUre === '') obj.addressDeUre = null;
     if (obj.addressDeFacto === '') obj.addressDeFacto = null;
@@ -70,16 +80,25 @@ export const EnterprEdit = (props) => {
     if (obj.rosRah === '') obj.rosRah = null;
     if (obj.rosUst === '') obj.rosUst = null;
     if (obj.rosMFO === '') obj.rosMFO = null;
-    if (obj.afilEnterp === '') obj.afilEnterp = null;
     if (obj.addInfo === '') obj.addInfo = null;
     if (obj.hideInfo === '') obj.hideInfo = null;
   }
 
+  const updateAfilEnterprs = (values) => {
+    if (listAfilEnt.length > 0) {
+      const arrId = [];
+      listAfilEnt.forEach(e => arrId.push(e.Id));
+      values.afilEnterp = arrId.join(',');
+    } else values.afilEnterp = null;
+  }
+
   const isDataChanged = (values) => {
     setValuesToNull(values);
+    updateAfilEnterprs(values);
     if (values.ident === props.enterpr.Ident && values.keyName === props.enterpr.KeyName && values.fullName === props.enterpr.FullName &&
       (checkDate(values.dateCreate, '') === checkDate(props.enterpr.DateCreate, '') || values.dateCreate === checkDate(props.enterpr.DateCreate, '')) &&
-      values.region === props.enterpr.Region && values.statutSize === props.enterpr.StatutSize && values.addressDeUre === props.enterpr.AddressDeUre &&
+      values.region === props.enterpr.Region && values.statutSize === props.enterpr.StatutSize && values.opForm === props.enterpr.OPForm &&
+      values.formVlasn === props.enterpr.FormVlasn && values.vidDijal === props.enterpr.VidDijal && values.addressDeUre === props.enterpr.AddressDeUre &&
       values.addressDeFacto === props.enterpr.AddressDeFacto && values.phones === props.enterpr.Phones && values.faxes === props.enterpr.Faxes &&
       values.rosRah === props.enterpr.RosRah && values.rosUst === props.enterpr.RosUst && values.rosMFO === props.enterpr.RosMFO &&
       values.afilEnterp === props.enterpr.AfilEnterp && values.addInfo === props.enterpr.AddInfo && values.hideInfo === props.enterpr.HideInfo &&
@@ -136,6 +155,7 @@ export const EnterprEdit = (props) => {
           .catch(err => {
             window.alert(err.response.data);
           });
+        props.updateInfo2(listAfilEnt);
       }
     } else {
       window.alert('Для інформації: ви не зробили жодних змін у даних про юридичну особу.');
@@ -150,173 +170,245 @@ export const EnterprEdit = (props) => {
       : props.updateEditing(null)
   }
 
-  return (<Paper classes={{ root: "fullPage" }} sx={{ m: 2, p: 2 }}>
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        sx={{ mb: 2 }}
-        label="Повна назва юридичної особи"
-        error={Boolean(errors.fullName?.message)}
-        helperText={errors.fullName?.message}
-        {...register('fullName', { required: "Обов'язкове поле" }
-        )}
-        size="small"
-        fullWidth />
-      <TextField
-        sx={{ mb: 2, mr: 2, width: 240 }}
-        label="Назва-ключ *"
-        helperText="* для пошуку та сортування"
-        {...register('keyName')}
-        size="small"
-      />
-      <TextField
-        sx={{ mb: 2, width: 240 }}
-        select
-        label="Регіон України"
-        defaultValue={props.enterpr.Region}
-        size="small"
-        {...register('region')}
-      >
-        {regionNames.slice(1).map((option, index) => (
-          <MenuItem key={index} value={++index}>{option}</MenuItem>
-        ))}
-      </TextField><br />
-      <TextField
-        sx={{ mb: 2, mr: 2, width: 160 }}
-        label="Код за ЄДРПОУ"
-        disabled={!props.addNew}
-        error={Boolean(errors.ident?.message)}
-        helperText={errors.ident?.message}
-        {...register('ident', {
-          onBlur: () => { props.addNew && checkIdent() },
-          required: "Обов'язкове поле"
-        })}
-        autoFocus={props.addNew}
-        size="small"
-      />
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
-        <DateField
-          sx={{ mb: 2, mr: 2, width: 160 }}
-          label="Дата створення"
-          value={valueDateCreate}
-          onChange={(newValue) => setValueDateCreate(newValue)}
-          {...register('dateCreate', {
-            required: 'вкажіть дату у форматі ДД.ММ.РРРР',
-            pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
-          })}
+  return (<div className="fullPage">
+    <Paper elevation={5} sx={{ m: 2, p: 2 }}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <TextField
+          sx={{ mb: 2 }}
+          label="Повна назва юридичної особи"
+          error={Boolean(errors.fullName?.message)}
+          helperText={errors.fullName?.message}
+          {...register('fullName', { required: "Обов'язкове поле" })}
+          size="small"
+          fullWidth />
+        <TextField
+          sx={{ mb: 2, mr: 2, width: 240, maxWidth: "100%" }}
+          label="Назва-ключ *"
+          error={Boolean(errors.keyName?.message)}
+          helperText={errors.keyName?.message || "* для пошуку та сортування"}
+          // helperText="* для пошуку та сортування"
+          {...register('keyName', { required: "Обов'язкове поле" })}
           size="small"
         />
-      </LocalizationProvider>
-      <TextField
-        sx={{ mb: 2, width: 200 }}
-        label="Статутний фонд"
-        error={Boolean(errors.statutSize?.message)}
-        helperText={errors.statutSize?.message}
-        InputProps={{
-          endAdornment: <InputAdornment position="end">грн.</InputAdornment>
-        }}
-        {...register('statutSize', {
-          required: "Обов'язкове поле",
-          pattern: {
-            value: /^(?:0\.\d?[1-9]|[1-9]\d*(.\d{1,2})?)$/,
-            message: "Значення більше 0, два знаки після крапки (за необхідності)"
-          }
-        })}
-        size="small"
-      />
-      <TextField
-        sx={{ mb: 2 }}
-        label="Адреса реєстрації"
-        error={Boolean(errors.addressDeUre?.message)}
-        helperText={errors.addressDeUre?.message}
-        {...register('addressDeUre', { required: "Обов'язкове поле" })}
-        size="small"
-        fullWidth />
-      <TextField
-        sx={{ mb: 2 }}
-        label="Фактична адреса"
-        error={Boolean(errors.addressDeFacto?.message)}
-        helperText={errors.addressDeFacto?.message}
-        {...register('addressDeFacto', { required: "Обов'язкове поле" })}
-        size="small"
-        fullWidth />
-      <TextField
-        sx={{ mb: 2, mr: 2, width: 240 }}
-        label="Телефон"
-        {...register('phones')}
-        size="small"
-      />
-      <TextField
-        sx={{ mb: 2, width: 240 }}
-        label="Факс"
-        {...register('faxes')}
-        size="small"
-      /><br />
-      <TextField
-        sx={{ mb: 2, mr: 2, width: 240 }}
-        label="Розрахунковий рахунок або IBAN"
-        {...register('rosRah')}
-        size="small"
-      />
-      <TextField
-        sx={{ mb: 2, width: 100 }}
-        label="МФО"
-        {...register('rosMFO')}
-        size="small"
-      />
-      <TextField
-        sx={{ mb: 2 }}
-        label="Кредитна установа"
-        {...register('rosUst')}
-        size="small"
-        fullWidth />
-      <TextField
-        sx={{ mb: 2, mr: 2, width: 200 }}
-        select
-        label="Система оподаткування"
-        defaultValue={props.enterpr.Podatok}
-        size="small"
-        {...register('podatok')}
-      >
-        {taxState.map((option, index) => (
-          <MenuItem key={index} value={index}>{option}</MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        sx={{ mb: 2, width: 160 }}
-        select
-        label="Ступінь ризику"
-        defaultValue={props.enterpr.StateRisk}
-        size="small"
-        {...register('stateRisk')}
-      >
-        {riskState.map((option, index) => (
-          <MenuItem key={index} value={index}>{option}</MenuItem>
-        ))}
-      </TextField><br />
-      <TextField
-        sx={{ mb: 2 }}
-        label="Додаткова інформація"
-        multiline
-        rows={3}
-        {...register('addInfo')}
-        size="small"
-        fullWidth />
-      <Box>
-        <Typography variant="subtitle1" align="center" gutterBottom>
-          Зображення шеврона або знаку належності
-        </Typography>
-        <div className="person-foto__edit">
-          <img className="fullPage__person-foto"
-            src={shevronUrl ? `${process.env.REACT_APP_API_URL}/uploads/${shevronUrl}` : `${process.env.REACT_APP_API_URL}/uploads/no_foto.jpg`} alt="Шеврон" />
-          <div>
-            <input ref={inputFileRef} accept="image/*" type="file" onChange={handleChangeFile} hidden />
-            <Button onClick={() => inputFileRef.current.click()} type="button" size="large" variant="contained" sx={{ mb: 2, width: 190, display: 'block' }}>Завантажити фото</Button>
-            {shevronUrl && <Button onClick={() => setShevronUrl(null)} type="button" size="large" variant="contained" sx={{ width: 190 }}>Видалити фото</Button>}
+        <TextField
+          sx={{ mb: 2, width: 240, maxWidth: "100%" }}
+          select
+          label="Регіон України"
+          defaultValue={props.enterpr.Region}
+          size="small"
+          {...register('region')}
+        >
+          {regionNames.slice(1).map((option, index) => (
+            <MenuItem key={index} value={++index}>{option}</MenuItem>
+          ))}
+        </TextField><br />
+        <TextField
+          sx={{ mb: 2, mr: 2, width: 160 }}
+          label="Код за ЄДРПОУ"
+          disabled={!props.addNew}
+          error={Boolean(errors.ident?.message)}
+          helperText={errors.ident?.message}
+          {...register('ident', {
+            onBlur: () => { props.addNew && checkIdent() },
+            required: "Обов'язкове поле"
+          })}
+          autoFocus={props.addNew}
+          size="small"
+        />
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+          <DateField
+            sx={{ mb: 2, mr: 2, width: 160 }}
+            label="Дата створення"
+            value={valueDateCreate}
+            onChange={(newValue) => setValueDateCreate(newValue)}
+            {...register('dateCreate', {
+              required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+              pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+            })}
+            size="small"
+          />
+        </LocalizationProvider>
+        <TextField
+          sx={{ mb: 2, width: 200 }}
+          label="Статутний фонд"
+          error={Boolean(errors.statutSize?.message)}
+          helperText={errors.statutSize?.message}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">грн.</InputAdornment>
+          }}
+          {...register('statutSize', {
+            required: "Обов'язкове поле",
+            pattern: {
+              value: /^(?:0\.\d?[1-9]|[1-9]\d*(.\d{1,2})?)$/,
+              message: "Значення більше 0, два знаки після крапки (за необхідності)"
+            }
+          })}
+          size="small"
+        /><br />
+        <TextField
+          sx={{ mb: 2, mr: 2, maxWidth: "100%" }}
+          select
+          label="Організаційно-правова форма"
+          defaultValue={props.enterpr.OPForm}
+          size="small"
+          {...register('opForm', { required: "Обов'язкове поле" })}
+        >
+          {opForms.map((option, index) => (
+            <MenuItem key={index} value={option.Id}>{option.Name} (код {option.Code})</MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          sx={{ mb: 2, maxWidth: "100%" }}
+          select
+          label="Форма власності"
+          defaultValue={props.enterpr.FormVlasn}
+          size="small"
+          {...register('formVlasn', { required: "Обов'язкове поле" })}
+        >
+          {formVlasn.map((option, index) => (
+            <MenuItem key={index} value={option.Id}>{option.Name}{option.Code && " (код " + option.Code + ")"}</MenuItem>
+          ))}
+        </TextField><br />
+        <TextField
+          sx={{ mb: 2 }}
+          select
+          label="Основний вид діяльності за КВЕД"
+          defaultValue={props.enterpr.VidDijal}
+          size="small"
+          {...register('vidDijal', { required: "Обов'язкове поле" })}
+          fullWidth
+        >
+          {activities.map((option, index) => (
+            <MenuItem key={index} value={option.Id}>{option.Name}{option.Code && " (код " + option.Code + ")"}</MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          sx={{ mb: 2 }}
+          label="Адреса реєстрації"
+          error={Boolean(errors.addressDeUre?.message)}
+          helperText={errors.addressDeUre?.message}
+          {...register('addressDeUre', { required: "Обов'язкове поле" })}
+          size="small"
+          fullWidth />
+        <TextField
+          sx={{ mb: 2 }}
+          label="Фактична адреса"
+          error={Boolean(errors.addressDeFacto?.message)}
+          helperText={errors.addressDeFacto?.message}
+          {...register('addressDeFacto', { required: "Обов'язкове поле" })}
+          size="small"
+          fullWidth />
+        <TextField
+          sx={{ mb: 2, mr: 2, width: 240, maxWidth: "100%" }}
+          label="Телефон"
+          {...register('phones')}
+          size="small"
+        />
+        <TextField
+          sx={{ mb: 2, width: 240, maxWidth: "100%" }}
+          label="Факс"
+          {...register('faxes')}
+          size="small"
+        /><br />
+        <TextField
+          sx={{ mb: 2, mr: 2, width: 240, maxWidth: "100%" }}
+          label="Розрахунковий рахунок або IBAN"
+          {...register('rosRah')}
+          size="small"
+        />
+        <TextField
+          sx={{ mb: 2, width: 100 }}
+          label="МФО"
+          {...register('rosMFO')}
+          size="small"
+        />
+        <TextField
+          sx={{ mb: 2 }}
+          label="Кредитна установа"
+          {...register('rosUst')}
+          size="small"
+          fullWidth />
+        <TextField
+          sx={{ mb: 2, mr: 2, width: 200 }}
+          select
+          label="Система оподаткування"
+          defaultValue={props.enterpr.Podatok}
+          size="small"
+          {...register('podatok')}
+        >
+          {taxState.map((option, index) => (
+            <MenuItem key={index} value={index}>{option}</MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          sx={{ mb: 2, width: 160 }}
+          select
+          label="Ступінь ризику"
+          defaultValue={props.enterpr.StateRisk}
+          size="small"
+          {...register('stateRisk')}
+        >
+          {riskState.map((option, index) => (
+            <MenuItem key={index} value={index}>{option}</MenuItem>
+          ))}
+        </TextField><br />
+        <TextField
+          sx={{ mb: 2 }}
+          label="Додаткова інформація"
+          multiline
+          rows={3}
+          {...register('addInfo')}
+          size="small"
+          fullWidth />
+        <Box>
+          <Typography variant="h6" align="center" gutterBottom>
+            Зображення шеврона або знаку належності
+          </Typography>
+          <div className="person-foto__edit">
+            <img className="fullPage__person-foto"
+              src={shevronUrl ? `${process.env.REACT_APP_API_URL}/uploads/${shevronUrl}` : `${process.env.REACT_APP_API_URL}/uploads/no_foto.jpg`} alt="Шеврон" />
+            <div>
+              <input ref={inputFileRef} accept="image/*" type="file" onChange={handleChangeFile} hidden />
+              <Button onClick={() => inputFileRef.current.click()} type="button" size="large" variant="contained" sx={{ mb: 2, width: 190, display: 'block' }}>Завантажити фото</Button>
+              {shevronUrl && <Button onClick={() => setShevronUrl(null)} type="button" size="large" variant="contained" sx={{ width: 190 }}>Видалити фото</Button>}
+            </div>
           </div>
-        </div>
-      </Box>
-      <Button disabled={!isValid} type="submit" size="large" variant="contained" sx={{ mr: 2 }}>Зберегти</Button>
-      <Button onClick={handleCancelClick} type="button" size="large" variant="outlined">Скасувати</Button>
-    </form>
-  </Paper>)
+        </Box>
+        <List dense sx={{ mb: 2, border: "1px solid lightgray", borderRadius: 1 }}>
+          <Typography variant="h6" align="center" gutterBottom>
+            {listAfilEnt.length === 0 ? "Афільованих юридичних осіб немає" : "Афільовані юридичні особи"}
+          </Typography>
+          {listAfilEnt.map((item, index) =>
+            <ListItem
+              key={index}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" title="Видалити зі списку" onClick={() => setListAfilEnt(listAfilEnt.filter(el => el.Id !== item.Id))} >
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemAvatar>
+                {item.Shevron
+                  ? <Avatar alt={item.KeyName} src={`${process.env.REACT_APP_API_URL}/uploads/${item.Shevron}`} />
+                  : <Avatar>
+                    <SecurityIcon />
+                  </Avatar>
+                }
+              </ListItemAvatar>
+              <ListItemText
+                primary={item.FullName}
+                secondary={"код ЄДРПОУ " + item.Ident}
+              />
+            </ListItem>
+          )}
+          <Button onClick={() => setOpenDialog(true)} size="large" variant="outlined" align="center" sx={{ ml: 2 }}>
+            {listAfilEnt.length === 0 ? "Додати до списку" : "Редагувати список"}
+          </Button>
+        </List>
+        <Button disabled={!isValid} type="submit" size="large" variant="contained" sx={{ mr: 2 }}>Зберегти</Button>
+        <Button onClick={handleCancelClick} type="button" size="large" variant="outlined">Скасувати</Button>
+      </form>
+    </Paper>
+    {openDialog && <EnterprsAfil id={props.enterpr.Id} afil={listAfilEnt} open={openDialog} updateEditing={updateEditing} updateInfo={updateAfilEnterpr} />}
+  </div>)
 }

@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from '../axios';
 import { AuthContext } from "../context/authContext";
-import { AppBar, Box, Typography, Tabs, Tab, FormControlLabel, Switch, Button } from "@mui/material";
-import EditNoteIcon from '@mui/icons-material/EditNote';
+import { AppBar, Box, Typography, Tabs, Tab, FormControlLabel, Switch, Button, Tooltip, IconButton } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { useFetching } from "../hooks/useFetching";
@@ -12,7 +12,7 @@ import Error from './Error';
 import Loader from "../components/UI/Loader/Loader";
 import MyModal from '../components/UI/MyModal/MyModal';
 import { checkDate } from "../utils/checkers";
-import { taxState, riskState, licenseState } from "../utils/data";
+import { taxState, riskState, opForms, formVlasn, activities } from "../utils/data";
 import { EnterprList } from "../components/EnterprList";
 import { EntFoundersList } from "../components/EntFoundersList";
 import { HeadsList } from "../components/HeadsList";
@@ -22,6 +22,7 @@ import { CheckList } from "../components/CheckList";
 import { PersonEdit } from "../components/PersonEdit";
 import { EnterprEdit } from "../components/EnterprEdit";
 import "../styles/pages.css";
+import { LicensesList } from "../components/LicensList";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -68,6 +69,7 @@ const EnterprPage = () => {
   const [enterpr, setEnterpr] = useState({});
   const updateEnterprInfo = (value) => { setEnterpr(value); }
   const [enterpAfil, setEnterpAfil] = useState([]);
+  const updateAfilInfo = (value) => { setEnterpAfil(value); }
   const [founders, setFounders] = useState([]);
   const [oldFounders, setOldFounders] = useState(false);
   const [foundersE, setFoundersE] = useState([]);
@@ -179,7 +181,10 @@ const EnterprPage = () => {
   const enterprData = [
     { fieldName: "Код за ЄДРПОУ", fieldValue: enterpr.Ident },
     { fieldName: "Дата створення", fieldValue: checkDate(enterpr.DateCreate, '') },
-    { fieldName: "Статутний фонд (у грн.)", fieldValue: enterpr.StatutSize },
+    { fieldName: "Організац.-правова форма", fieldValue: "OPForm" in enterpr ? opForms[opForms.findIndex(e => e.Id === enterpr.OPForm)].Name : enterpr.OPForm },
+    { fieldName: "Форма власності", fieldValue: "FormVlasn" in enterpr ? formVlasn[enterpr.FormVlasn - 1].Name : enterpr.FormVlasn },
+    { fieldName: "Основний вид діяльності", fieldValue: "VidDijal" in enterpr ? activities[activities.findIndex(e => e.Id === enterpr.VidDijal)].Code + " - " + activities[activities.findIndex(e => e.Id === enterpr.VidDijal)].Name : enterpr.VidDijal },
+    { fieldName: "Статутний фонд", fieldValue: enterpr.StatutSize + " грн." },
     { fieldName: "Адреса реєстрації", fieldValue: enterpr.AddressDeUre },
     { fieldName: "Фактична адреса", fieldValue: enterpr.AddressDeFacto },
     { fieldName: "Телефон", fieldValue: enterpr.Phones },
@@ -199,9 +204,17 @@ const EnterprPage = () => {
   return isAuth
     ? isLoading
       ? <Loader />
-      : enterprNew
+      : enterpr
         ? editEnterpr
-          ? <EnterprEdit addNew={false} enterpr={enterpr} updateEditing={updateMainEditing} updateInfo={updateEnterprInfo} editor={currentUser.Id} />
+          ? <EnterprEdit
+            addNew={false}
+            enterpr={enterpr}
+            afil={enterpAfil}
+            updateEditing={updateMainEditing}
+            updateInfo={updateEnterprInfo}
+            updateInfo2={updateAfilInfo}
+            editor={currentUser.Id}
+          />
           : <div className="fullPage">
             <h1 className="fullPage__name">{enterpr.FullName}</h1>
             <AppBar position="static" color="default">
@@ -218,7 +231,7 @@ const EnterprPage = () => {
                 <Tab label="ЗАСНОВНИКИ" disabled={Boolean((editPerson || editMode) && value !== 1)} {...a11yProps(1)} />
                 <Tab label="КЕРІВНИКИ" disabled={Boolean((editPerson || editMode) && value !== 2)} {...a11yProps(2)} />
                 <Tab label="ЗАЯВИ" disabled={Boolean((editPerson || editMode) && value !== 3)} {...a11yProps(3)} />
-                {licenses.length > 0 && <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean((editPerson || editMode) && value !== 4)} {...a11yProps(4)} />}
+                <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean((editPerson || editMode) && value !== 4)} {...a11yProps(4)} />
                 <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 5)} {...a11yProps(5)} />
                 <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 6)} {...a11yProps(6)} />
                 <Tab label={"ПЕРЕВІРКИ (" + checkings.length + ")"} disabled={Boolean((editPerson || editMode) && value !== 7)} {...a11yProps(7)} />
@@ -228,18 +241,23 @@ const EnterprPage = () => {
               <MyModal visible={modal} setVisible={setModal}>
                 {enterpr.Shevron && <img src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} alt="Шеврон/знак" />}
               </MyModal>
-              {currentUser.acc > 1 && <Button sx={{ mb: 2 }} onClick={() => setEditEnterpr(true)} variant="contained" startIcon={<EditNoteIcon />}>Редагувати</Button>}
               {enterprData.map((item, index) =>
-                item.fieldValue && <div className="rowInfo" key={index}>
-                  <div className="rowInfo__fieldName">{item.fieldName}:</div>
-                  <div className="rowInfo__fieldValue">{item.fieldValue}</div>
+                item.fieldValue && <div className="list-item flex-end" key={index}>
+                  <div className="list-item__fieldName">{item.fieldName}:</div>
+                  <div className="list-item__fieldValue">{item.fieldValue}</div>
+                  {currentUser.acc > 1 && index === 0 &&
+                    <Tooltip title="Редагувати дані">
+                      <IconButton size="small" color="primary" aria-label="edit" onClick={() => setEditEnterpr(true)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>}
                 </div>
               )}
-              {currentUser.acc > 1 && enterpr.HideInfo && <div className="rowInfo">
-                <div className="rowInfo__fieldName">Службова інформація:</div>
-                <div className="rowInfo__fieldValue">{enterpr.HideInfo}</div>
+              {currentUser.acc > 1 && enterpr.HideInfo && <div className="list-item flex-end">
+                <div className="list-item__fieldName">Службова інформація:</div>
+                <div className="list-item__fieldValue">{enterpr.HideInfo}</div>
               </div>}
-              {enterpr.Shevron && <div className="rowInfo">
+              {enterpr.Shevron && <div className="list-item flex-end">
                 Шеврон або розпізнавальний знак на одязі персоналу охорони:
                 <img style={{ height: 40, marginLeft: 20, cursor: "pointer" }}
                   onClick={showShevron}
@@ -289,7 +307,7 @@ const EnterprPage = () => {
                   inputProps={{ 'aria-label': 'controlled' }} />}
               />}
               {editPerson === null && editMode === null && oldFounders && <HeadsList source={founders.filter(founders => founders.State === 1)} role={false} active={false} sequr={false} buttons={false} />}
-              {foundersE.filter(foundersE => foundersE.State === 0).length > 0
+              {editPerson === null && editMode === null && foundersE.filter(foundersE => foundersE.State === 0).length > 0
                 ? <div>
                   {editPerson === null && editMode === null && <div className="block-header">Засновники - юридичні особи:</div>}
                   <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 0)} active={true} />
@@ -316,7 +334,10 @@ const EnterprPage = () => {
             <TabPanel value={value} index={2}>
               {editPerson === null
                 ? heads.filter(heads => heads.State === 0).length > 0
-                  ? <HeadsList source={heads.filter(heads => heads.State === 0)} role={true} active={true} sequr={false} buttons={true} updateList={updateHeadsList} updateEditMode={updateEditMode} />
+                  ? <HeadsList source={heads.filter(heads => heads.State === 0)}
+                    role={true} active={true} sequr={false} buttons={true}
+                    updateList={updateHeadsList}
+                    updateEditMode={updateEditMode} />
                   : <div className="block-header">Керівників у підприємства на даний час немає</div>
                 : <PersonEdit
                   person={editPerson}
@@ -349,34 +370,10 @@ const EnterprPage = () => {
               <OrdersList source={orders} heads={uniqueHeads()} updateList={updateOrdersList} updateList2={updateLicensesList} />
             </TabPanel>
             <TabPanel value={value} index={4}>
-              <div className="rowInfo list-header">
-                <div className="license-item__kateg">Катег.</div>
-                <div className="license-item__number">Серія і номер</div>
-                <div className="license-item__date">Діє з</div>
-                <div className="license-item__date">по</div>
-                <div className="license-item__state">Стан</div>
-              </div>
-              {licenses.map((item, index) =>
-                <div className="rowInfo" key={index}>
-                  <div className="license-item license-item__kateg" title={item.LicName}>{item.Category}</div>
-                  <div className="license-item license-item__number">{item.SerLicenze} {item.NumLicenze}</div>
-                  <div className="license-item license-item__date" title={item.ReasonStart}>{checkDate(item.DateLicenz, '')}</div>
-                  <div className="license-item license-item__date" title={item.ReasonStart}>
-                    {(new Date(item.DateClose) > new Date("2222-02-20"))
-                      ? "безтерміново"
-                      : checkDate(item.DateClose, '')
-                    }
-                  </div>
-                  <div className="license-item license-item__state" title={item.ReasonClose}>
-                    {item.State === 0
-                      ? (new Date(item.DateClose) > new Date())
-                        ? licenseState[item.State]
-                        : "термін дії закінчився"
-                      : licenseState[item.State]
-                    }
-                  </div>
-                </div>
-              )}
+              {licenses.length > 0
+                ? <LicensesList source={licenses} />
+                : <div className="block-header">Ліцензій підприємство ще не отримувало</div>
+              }
             </TabPanel>
             <TabPanel value={value} index={5}>
               {employees.length > 0

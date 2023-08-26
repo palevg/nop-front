@@ -23,20 +23,20 @@ export const CheckList = (props) => {
 
   return (
     <div>
-      <div className="rowInfo check-header">
+      <div className="list-item flex-end check-header">
         <div className="list-item__switch" />
-        <div className="rowInfo__check-type">Вид перевірки</div>
-        <div className="rowInfo__check-doc">Посвідчення на перевірку</div>
-        <div className="rowInfo__checker">Голова комісії</div>
+        <div className="list-item__check-type">Вид перевірки</div>
+        <div className="list-item__check-doc">Посвідчення на перевірку</div>
+        <div className="list-item__checker">Голова комісії</div>
       </div>
       {props.source.map((item, index) =>
         <div className="list-item" key={index}>
           <div className="list-item__visible">
             <label className="list-item__switch" htmlFor={"showCheckPart" + index} id={"labshowCheckPart" + index} title="Показати розширену інформацію">⊕</label>
             <div className="list-item__visible-data">
-              <div className="rowInfo__check-type">{checkType[item.CheckType]}</div>
-              <div className="rowInfo__check-doc">{checkDate(item.CheckSertificateDate, "від ")} № {item.CheckSertificateNo}</div>
-              <div className="rowInfo__checker">{item.Checker}</div>
+              <div className="list-item__check-type">{checkType[item.CheckType]}</div>
+              <div className="list-item__check-doc">{checkDate(item.CheckSertificateDate, "від ")} № {item.CheckSertificateNo}</div>
+              <div className="list-item__checker">{item.Checker}</div>
             </div>
           </div>
           <input className="list-item__checkbox" id={"showCheckPart" + index} type="checkbox" onClick={handleChange} />
