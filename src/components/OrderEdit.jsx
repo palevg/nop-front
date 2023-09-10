@@ -8,6 +8,7 @@ import { Paper, TextField, MenuItem, Button } from "@mui/material";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
+import { toast } from 'react-toastify';
 import axios from '../axios';
 
 export const OrderEdit = (props) => {
@@ -46,20 +47,20 @@ export const OrderEdit = (props) => {
       values.id = props.order.Id;
       await axios.patch("/order/edit", values)
         .then(res => {
-          window.alert(res.data);
+          toast.success(res.data);
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
       await axios.get("/orders/" + props.order.EnterpriseId)
         .then(res => {
           props.updateList(res.data);
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
     } else {
-      window.alert('Для інформації: ви не зробили жодних змін у даних про заяву.');
+      toast.warn("Для інформації: ви не зробили жодних змін у даних про заяву.");
     }
     props.updateEditing(null);
   }

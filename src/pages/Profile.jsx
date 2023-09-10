@@ -5,6 +5,7 @@ import { AuthContext } from "../context/authContext";
 import Error from './Error';
 import axios from '../axios';
 import { Paper, Typography, TextField, FormControlLabel, Switch, Button } from "@mui/material";
+import { toast } from 'react-toastify';
 
 const Profile = () => {
   const { isAuth, currentUser, auth } = React.useContext(AuthContext);
@@ -40,18 +41,18 @@ const Profile = () => {
 
   const onSubmit = async (values) => {
     if (values.fullName !== currentUser.FullName || values.posada !== currentUser.Posada || values.email !== currentUser.Email || changePassword) {
-      if (changePassword && values.newPassword !== values.newPassword2) return alert('Ви вказали різні дані у полях вводу нового паролю!');
-      if (changePassword && values.oldPassword === values.newPassword) return alert('Поточний та новий пароль однакові!');
+      if (changePassword && values.newPassword !== values.newPassword2) return toast.error("Ви вказали різні дані у полях вводу нового паролю!");
+      if (changePassword && values.oldPassword === values.newPassword) return toast.error("Поточний та новий пароль однакові!");
       values.id = currentUser.Id;
       values.changePassword = changePassword;
       await axios.patch("/auth/profile", values)
         .then(res => {
-          alert(res.data);
+          toast.success(res.data);
           auth();
           navigate('/');
         })
         .catch(err => {
-          alert(err.response.data);
+          toast.error(err.response.data);
         });
     } else navigate('/');
   };

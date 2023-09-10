@@ -13,6 +13,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import axios from '../axios';
 import { EnterprsAfil } from "./EnterprsAfil";
+import { toast } from 'react-toastify';
 
 export const EnterprEdit = (props) => {
   const navigate = useNavigate();
@@ -59,10 +60,10 @@ export const EnterprEdit = (props) => {
         formData.append('image', event.target.files[0], new Date().getTime() + event.target.files[0].name.slice(event.target.files[0].name.lastIndexOf('.')));
         const { data } = await axios.post('/upload', formData);
         setShevronUrl(data.url);
-      } else window.alert('Ви вибрали невірний тип файлу!');
+      } else toast.error("Ви вибрали невірний тип файлу!");
     } catch (err) {
       console.warn(err);
-      window.alert('Помилка при завантаженні файлу!');
+      toast.error("Помилка при завантаженні файлу!");
     }
   };
 
@@ -120,7 +121,7 @@ export const EnterprEdit = (props) => {
         }
       })
       .catch(err => {
-        window.alert(err.response.data);
+        toast.error(err.response.data);
       });
   }
 
@@ -131,21 +132,21 @@ export const EnterprEdit = (props) => {
       if (props.addNew) {
         await axios.post("/enterpr/new", values)
           .then(res => {
-            window.alert(res.data.message);
+            toast.success(res.data.message);
             props.updateEditing(null);
             navigate('/enterprs/' + res.data.newId);
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
       } else {
         values.id = props.enterpr.Id;
         await axios.patch("/enterpr/edit", values)
           .then(res => {
-            window.alert(res.data);
+            toast.success(res.data);
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
         props.updateEditing(null);
         await axios.get("/enterpr/" + props.enterpr.Id)
@@ -153,12 +154,12 @@ export const EnterprEdit = (props) => {
             props.updateInfo(res.data[0]);
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
         props.updateInfo2(listAfilEnt);
       }
     } else {
-      window.alert('Для інформації: ви не зробили жодних змін у даних про юридичну особу.');
+      toast.info("Ви не зробили жодних змін у даних про юридичну особу.");
       props.updateEditing(null);
     }
   };

@@ -9,6 +9,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
+import { toast } from 'react-toastify';
 import axios from '../axios';
 
 const filter = createFilterOptions();
@@ -60,10 +61,10 @@ export const PersonEdit = (props) => {
         formData.append('image', event.target.files[0], new Date().getTime() + event.target.files[0].name.slice(event.target.files[0].name.lastIndexOf('.')));
         const { data } = await axios.post('/upload', formData);
         setFotoUrl(data.url);
-      } else window.alert('Ви вибрали невірний тип файлу!');
+      } else toast.error("Ви вибрали невірний тип файлу!");
     } catch (err) {
       console.warn(err);
-      window.alert('Помилка при завантаженні файлу!');
+      toast.error("Помилка при завантаженні файлу!");
     }
   };
 
@@ -124,7 +125,7 @@ export const PersonEdit = (props) => {
         }
       })
       .catch(err => {
-        window.alert(err.response.data);
+        toast.error(err.response.data);
       });
   }
 
@@ -205,10 +206,10 @@ export const PersonEdit = (props) => {
         linkToPatch += "new";
         await axios.post(linkToPatch, values)
           .then(res => {
-            window.alert(res.data);
+            toast.success(res.data);
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
       } else {
         if (props.personType > 0) linkToPatch += "edit";
@@ -221,10 +222,10 @@ export const PersonEdit = (props) => {
         }
         await axios.patch(linkToPatch, values)
           .then(res => {
-            window.alert(res.data);
+            toast.success(res.data);
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
       }
       await axios.get(linkToReload + (props.personType === 0 ? props.person.Id : props.person.Enterprise))
@@ -232,9 +233,9 @@ export const PersonEdit = (props) => {
           props.updateList(props.personType === 0 ? res.data[0] : res.data);
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
-    } else window.alert('Для інформації: ви не зробили жодних змін у даних про особу.');
+    } else toast.info("Ви не зробили жодних змін у даних про особу.");
     props.updateEditing(null);
     if (!props.simpleEdit) props.updateEditMode(null);
   };

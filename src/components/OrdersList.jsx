@@ -15,6 +15,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import BlockIcon from '@mui/icons-material/Block';
 import { OrderEdit } from "./OrderEdit";
 import axios from '../axios';
+import { toast } from "react-toastify";
 
 export const OrdersList = (props) => {
   const { currentUser } = React.useContext(AuthContext);
@@ -37,7 +38,7 @@ export const OrdersList = (props) => {
 
   const handleEdit = row => {
     if (props.heads.length > 0) setEditOrder(row)
-    else alert("Для можливості редагування заяв внесіть дані про хоча б одного керівника цієї юридичної особи!");
+    else toast.warn("Для можливості редагування заяв внесіть дані про хоча б одного керівника цієї юридичної особи!");
   }
 
   const handleTake = async row => {
@@ -49,25 +50,25 @@ export const OrdersList = (props) => {
           if (dataRes.filter(dataRes => dataRes.State === 0).length === 0) possibleTake = false;
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
       if (!possibleTake)
         await axios.get("/foundersent/" + row.EnterpriseId)
           .then(res => {
             const dataRes = res.data;
             if (dataRes.filter(dataRes => dataRes.State === 0).length === 0) {
-              window.alert("Для можливості видачі ліцензії внесіть дані про засновників цієї юридичної особи!");
+              toast.warn("Для можливості видачі ліцензії внесіть дані про засновників цієї юридичної особи!");
             } else possibleTake = true;
           })
           .catch(err => {
-            window.alert(err.response.data);
+            toast.error(err.response.data);
           });
       if (possibleTake) {
         setChangeOrderState(row);
         setValue('options', '');
         setOpenDialog(5);
       }
-    } else window.alert("Для можливості зміни статусу заяви та видачі ліцензії внесіть всі необхідні дані про цю заяву!");
+    } else toast.warn("Для можливості зміни статусу заяви та видачі ліцензії внесіть всі необхідні дані про цю заяву!");
   }
 
   const handleTrial = row => {
@@ -76,7 +77,7 @@ export const OrdersList = (props) => {
       setValue('options', row.Options);
       setOpenDialog(1);
     }
-    else window.alert("Для можливості зміни статусу заяви внесіть всі необхідні дані про цю заяву!");
+    else toast.warn("Для можливості зміни статусу заяви внесіть всі необхідні дані про цю заяву!");
   }
 
   const handleRefuse = row => {
@@ -85,7 +86,7 @@ export const OrdersList = (props) => {
       setValue('options', row.Options);
       setOpenDialog(2)
     }
-    else alert("Для можливості зміни статусу заяви внесіть всі необхідні дані про цю заяву!");
+    else toast.warn("Для можливості зміни статусу заяви внесіть всі необхідні дані про цю заяву!");
   }
 
   const handleChange = (event) => {
@@ -108,14 +109,14 @@ export const OrdersList = (props) => {
         alertText = res.data;
       })
       .catch(err => {
-        window.alert(err.response.data);
+        toast.error(err.response.data);
       });
     await axios.get("/orders/" + changeOrderState.EnterpriseId)
       .then(res => {
         props.updateList(res.data);
       })
       .catch(err => {
-        window.alert(err.response.data);
+        toast.error(err.response.data);
       });
     if (openDialog === 5) {
       values.enterpriseId = changeOrderState.EnterpriseId;
@@ -125,18 +126,18 @@ export const OrdersList = (props) => {
           alertText += "\n" + res.data;
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
       await axios.get("/licenses/" + changeOrderState.EnterpriseId)
         .then(res => {
           props.updateList2(res.data);
         })
         .catch(err => {
-          window.alert(err.response.data);
+          toast.error(err.response.data);
         });
     }
     setOpenDialog(0);
-    window.alert(alertText);
+    toast.success(alertText);
   }
 
   const handleCancelClick = () => {

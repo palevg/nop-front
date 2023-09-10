@@ -5,15 +5,17 @@ import './styles/App.css';
 import { AuthContext } from "./context/authContext";
 import Header from './components/Header';
 import AppRouter from './components/AppRouter';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { isAuth, currentUser, logout, auth } = React.useContext(AuthContext);
   const [remaining, setRemaining] = React.useState(0);
-  
+
   const onIdle = () => {
     if (isAuth && window.localStorage.getItem('token')) {
       logout(currentUser);
-      alert("Ваш сеанс роботи завершено автоматично у зв'язку із неактивністю впродовж 10 хвилин.\nДля продовження роботи потрібна повторна авторизація!");
+      toast.info("Ваш сеанс роботи завершено автоматично у зв'язку із неактивністю впродовж 10 хвилин. Для продовження роботи потрібна повторна авторизація!");
     }
   }
 
@@ -34,6 +36,7 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
+      <ToastContainer position="top-center" />
       <AppRouter />
     </BrowserRouter>
   )

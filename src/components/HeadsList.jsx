@@ -11,7 +11,7 @@ import WorkOffIcon from '@mui/icons-material/WorkOff';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
-
+import { toast } from 'react-toastify';
 
 export const HeadsList = (props) => {
   const personType = props.sequr ? 3 : props.role ? 2 : 1;
@@ -40,7 +40,7 @@ export const HeadsList = (props) => {
   const handleDialogClose = async () => {
     const fireDateISO = new Date(dateExit).toISOString().substring(0, 10);
     if (fireDateISO < (props.role ? firePerson.DateStartWork : firePerson.DateEnter)) {
-      alert(props.role ? "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!" :
+      toast.warn(props.role ? "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!" :
         "Вивести особу зі складу засновників раніше, ніж вона стала співзасновником, неможливо!");
     } else {
       handleCancel();
@@ -51,17 +51,17 @@ export const HeadsList = (props) => {
       values.editor = currentUser.Id;
       await axios.patch("/peoples/exit", values)
         .then(res => {
-          alert(res.data);
+          toast.success(res.data);
         })
         .catch(err => {
-          alert(err.response.data);
+          toast.error(err.response.data);
         });
       await axios.get((props.role ? "/heads/" : "/founders/") + firePerson.Enterprise)
         .then(res => {
           props.updateList(res.data);
         })
         .catch(err => {
-          alert(err.response.data);
+          toast.error(err.response.data);
         });
     }
   };
