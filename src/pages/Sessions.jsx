@@ -1,4 +1,4 @@
-import React from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from "../context/authContext";
 import UserService from "../API/UserService";
 import Error from './Error';
@@ -6,15 +6,15 @@ import Loader from '../components/UI/Loader/Loader';
 import { useFetching } from '../hooks/useFetching';
 
 const Sessions = () => {
-  const { isAuth, currentUser } = React.useContext(AuthContext);
-  const [sessions, setSessions] = React.useState([]);
+  const { isAuth, currentUser } = useContext(AuthContext);
+  const [sessions, setSessions] = useState([]);
 
   const [fetchSessions, isSessionsLoading, loadError] = useFetching(async () => {
     const response = await UserService.getSessions();
     setSessions(response.data);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchSessions();
   }, []);
 

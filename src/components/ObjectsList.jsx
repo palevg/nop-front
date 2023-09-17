@@ -1,4 +1,3 @@
-import React from "react";
 import { checkDate } from "../utils/checkers";
 
 export const ObjectsList = (props) => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { checkDate } from "../utils/checkers";
 import { checkType, pointsLicUmText } from "../utils/data";
 

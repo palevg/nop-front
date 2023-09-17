@@ -1,4 +1,3 @@
-import React from "react";
 import { checkDate, checkStatut } from "../utils/checkers";
 
 export const EntFoundersList = (props) => {

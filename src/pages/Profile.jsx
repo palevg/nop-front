@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import { AuthContext } from "../context/authContext";
@@ -8,8 +8,8 @@ import { Paper, Typography, TextField, FormControlLabel, Switch, Button } from "
 import { toast } from 'react-toastify';
 
 const Profile = () => {
-  const { isAuth, currentUser, auth } = React.useContext(AuthContext);
-  const [changePassword, setChangePassword] = React.useState(false);
+  const { isAuth, currentUser, auth } = useContext(AuthContext);
+  const [changePassword, setChangePassword] = useState(false);
   const navigate = useNavigate();
 
   const accLevel = ['', 'лише читання даних', 'читання і редагування даних', 'повний, у т.ч. адміністрування'];

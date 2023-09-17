@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
 import 'dayjs/locale/uk';
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 
 export const HeadsList = (props) => {
   const personType = props.sequr ? 3 : props.role ? 2 : 1;
-  const { currentUser } = React.useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
   const [editPerson, setEditPerson] = useState(null);
   const updateEditing = (value) => { setEditPerson(value); }
   const [openDialog, setOpenDialog] = useState(false);

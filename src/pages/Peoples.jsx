@@ -1,15 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from 'react-hook-form';
-import { AuthContext } from "../context/authContext";
 import PersonService from "../API/PersonService";
-import Error from './Error';
 import { useFetching } from '../hooks/useFetching';
 import { PeoplesList } from "../components/PeoplesList";
 import { Dialog, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 const Peoples = () => {
-  const { isAuth } = React.useContext(AuthContext);
   const [peoples, setPeoples] = useState([]);
   const [openDialog, setOpenDialog] = useState(true);
   const [queryData, setQueryData] = useState({ name: null });
@@ -35,8 +32,8 @@ const Peoples = () => {
     setPeoples(response.data);
   });
 
-  return isAuth
-    ? <div className="list-page">
+  return (
+    <div className="list-page">
       <Dialog maxWidth="xs" open={openDialog}>
         <form style={{ width: 300 }} onSubmit={handleSubmit(onSubmit)}>
           <DialogContent>
@@ -80,7 +77,7 @@ const Peoples = () => {
       {loadError && <h1>Сталась помилка "{loadError}"</h1>}
       <PeoplesList peoples={peoples} loading={isPeoplesLoading} />
     </div>
-    : <Error />
+  )
 }
 
 export default Peoples;

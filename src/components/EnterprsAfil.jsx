@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import Loader from './UI/Loader/Loader';
 import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import axios from '../axios';
@@ -49,7 +49,7 @@ export const EnterprsAfil = (props) => {
     props.updateEditing(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     getEnterprList();
   }, []);
 

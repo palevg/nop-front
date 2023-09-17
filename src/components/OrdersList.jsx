@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import 'dayjs/locale/uk';
@@ -18,7 +18,7 @@ import axios from '../axios';
 import { toast } from "react-toastify";
 
 export const OrdersList = (props) => {
-  const { currentUser } = React.useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
   const [openDialog, setOpenDialog] = useState(0);
   const [editOrder, setEditOrder] = useState(null);
   const updateEditing = (value) => { setEditOrder(value); }

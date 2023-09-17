@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from '../axios';
@@ -17,12 +17,12 @@ import { EnterprList } from "../components/EnterprList";
 import { EntFoundersList } from "../components/EntFoundersList";
 import { HeadsList } from "../components/HeadsList";
 import { OrdersList } from "../components/OrdersList";
+import { LicensesList } from "../components/LicensList";
 import { ObjectsList } from "../components/ObjectsList";
 import { CheckList } from "../components/CheckList";
 import { PersonEdit } from "../components/PersonEdit";
 import { EnterprEdit } from "../components/EnterprEdit";
 import "../styles/pages.css";
-import { LicensesList } from "../components/LicensList";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -64,8 +64,7 @@ const EnterprPage = () => {
     setModal(true);
   }
   const params = useParams();
-  const { isAuth, currentUser } = React.useContext(AuthContext);
-  const [enterprNew, setEnterprNew] = useState(null);
+  const { isAuth, currentUser } = useContext(AuthContext);
   const [enterpr, setEnterpr] = useState({});
   const updateEnterprInfo = (value) => { setEnterpr(value); }
   const [enterpAfil, setEnterpAfil] = useState([]);
@@ -104,54 +103,17 @@ const EnterprPage = () => {
     await axios.get('/enterprs/' + id)
       .then(response => {
         setEnterpr(response.data[0]);
-        if (enterprNew !== params.id) {   // це тимчасова перевірка, бо поки є подвійне зчитування даних
-          enterpAfil.length = founders.length = foundersE.length = heads.length = orders.length =
-            licenses.length = employees.length = objects.length = checkings.length = 0;
-          response.data.forEach((item) => {
-            switch (item.res_key) {
-              case 1:
-                enterpAfil.push(item);
-                break;
-              case 2:
-                founders.push(item);
-                break;
-              case 3:
-                foundersE.push(item);
-                break;
-              case 4:
-                heads.push(item);
-                break
-              case 5:
-                orders.push(item);
-                break
-              case 6:
-                licenses.push(item);
-                break
-              case 7:
-                employees.push(item);
-                break
-              case 8:
-                objects.push(item);
-                break
-              case 9:
-                checkings.push(item);
-                break
-            }
-          });
-        }
-        setEnterprNew(params.id);
-        setEnterpAfil(enterpAfil);
-        setFounders(founders);
-        setFoundersE(foundersE);
-        setHeads(heads);
-        setOrders(orders);
-        setLicenses(licenses);
-        setEmployees(employees);
-        setObjects(objects);
-        setCheckings(checkings);
+        setEnterpAfil(response.data.filter(item => item.res_key === 1));
+        setFounders(response.data.filter(item => item.res_key === 2));
+        setFoundersE(response.data.filter(item => item.res_key === 3));
+        setHeads(response.data.filter(item => item.res_key === 4));
+        setOrders(response.data.filter(item => item.res_key === 5));
+        setLicenses(response.data.filter(item => item.res_key === 6));
+        setEmployees(response.data.filter(item => item.res_key === 7));
+        setObjects(response.data.filter(item => item.res_key === 8));
+        setCheckings(response.data.filter(item => item.res_key === 9));
       })
       .catch(err => {
-        setEnterprNew(null);
         // alert(err.response.data.message);
       });
   });
@@ -184,7 +146,7 @@ const EnterprPage = () => {
     { fieldName: "Організац.-правова форма", fieldValue: "OPForm" in enterpr ? opForms[opForms.findIndex(e => e.Id === enterpr.OPForm)].Name : enterpr.OPForm },
     { fieldName: "Форма власності", fieldValue: "FormVlasn" in enterpr ? formVlasn[enterpr.FormVlasn - 1].Name : enterpr.FormVlasn },
     { fieldName: "Основний вид діяльності", fieldValue: "VidDijal" in enterpr ? activities[activities.findIndex(e => e.Id === enterpr.VidDijal)].Code + " - " + activities[activities.findIndex(e => e.Id === enterpr.VidDijal)].Name : enterpr.VidDijal },
-    { fieldName: "Статутний фонд", fieldValue: enterpr.StatutSize + " грн." },
+    { fieldName: "Статутний фонд", fieldValue: "StatutSize" in enterpr ? parseFloat(enterpr.StatutSize).toLocaleString("uk-UA", { style: "currency", currency: "UAH" }) : enterpr.StatutSize },
     { fieldName: "Адреса реєстрації", fieldValue: enterpr.AddressDeUre },
     { fieldName: "Фактична адреса", fieldValue: enterpr.AddressDeFacto },
     { fieldName: "Телефон", fieldValue: enterpr.Phones },
@@ -197,14 +159,14 @@ const EnterprPage = () => {
     { fieldName: "Додаткова інформація", fieldValue: enterpr.AddInfo }
   ];
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchFirmaById(params.id);
   }, [params.id]);
 
   return isAuth
     ? isLoading
       ? <Loader />
-      : enterpr
+      : "Ident" in enterpr
         ? editEnterpr
           ? <EnterprEdit
             addNew={false}

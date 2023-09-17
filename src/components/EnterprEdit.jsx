@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
@@ -19,7 +19,7 @@ export const EnterprEdit = (props) => {
   const navigate = useNavigate();
   const [valueDateCreate, setValueDateCreate] = useState(props.enterpr.DateCreate === null ? null : dayjs(props.enterpr.DateCreate));
   const [shevronUrl, setShevronUrl] = useState(props.enterpr.Shevron);
-  const inputFileRef = React.useRef(null);
+  const inputFileRef = useRef(null);
   const [openDialog, setOpenDialog] = useState(false);
   const updateEditing = (value) => { setOpenDialog(value); }
   const [listAfilEnt, setListAfilEnt] = useState(props.afil);

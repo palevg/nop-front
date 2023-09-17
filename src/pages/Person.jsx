@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import axios from '../axios';
@@ -13,9 +13,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import "../styles/pages.css";
 
 const Person = () => {
-  const { isAuth, currentUser } = React.useContext(AuthContext);
+  const { isAuth, currentUser } = useContext(AuthContext);
   const params = useParams();
-  const [personData, setPersonData] = useState(false);
   const [person, setPerson] = useState({});
   const [editPerson, setEditPerson] = useState(null);
   const updateEditing = (value) => { setEditPerson(value); }
@@ -24,31 +23,16 @@ const Person = () => {
   const [head, setHead] = useState([]);
   const [employee, setEmployee] = useState([]);
 
-  const [fetchPersonById, isLoading, error] = useFetching(async (id) => {
+  const [fetchPersonById, isLoading] = useFetching(async (id) => {
     await axios.get('/peoples/' + id)
       .then(response => {
         setPerson(response.data[0]);
-        setPersonData(true);
-        response.data.map((item) => {
-          switch (item.res_key) {
-            case 1:
-              founder.push(item);
-              break;
-            case 2:
-              head.push(item);
-              break
-            case 3:
-              employee.push(item);
-              break
-          }
-        });
-        setFounder(founder);
-        setHead(head);
-        setEmployee(employee);
+        setFounder(response.data.filter(item => item.res_key === 1));
+        setHead(response.data.filter(item => item.res_key === 2));
+        setEmployee(response.data.filter(item => item.res_key === 3));
       })
       .catch(err => {
-        setPersonData(false);
-        // alert(err.response.data.message);
+        alert(err.response.data.message);
       });
   });
 
@@ -63,14 +47,14 @@ const Person = () => {
     { fieldName: "Освіта", fieldValue: person.Osvita }
   ];
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchPersonById(params.id);
   }, []);
 
   return isAuth
     ? isLoading
       ? <Loader />
-      : personData
+      : "Name" in person
         ? <div className="fullPage">
           <h1 className="fullPage__name">{person.Name}</h1>
           <div className="fullPage__person-info">

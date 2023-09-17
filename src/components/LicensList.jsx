@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import { checkDate } from "../utils/checkers";
 import { licenseState } from "../utils/data";
 import { AuthContext } from "../context/authContext";
@@ -6,7 +6,7 @@ import { Tooltip, IconButton } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 
 export const LicensesList = (props) => {
-  const { currentUser } = React.useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
 
   return (
     <div>

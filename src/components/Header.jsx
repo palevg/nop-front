@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../context/authContext";
 import { AppBar, Box, Avatar, Toolbar, Typography, Menu, Container, Button, Tooltip, MenuItem, Fade, Divider, ListItemIcon, IconButton } from '@mui/material';
@@ -12,7 +12,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import Logout from '@mui/icons-material/Logout';
 
 const Header = () => {
-  const { isAuth, currentUser, logout } = React.useContext(AuthContext);
+  const { isAuth, currentUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const pages = [
     <Link className='menu-link' to="/enterprs">Юр.особи</Link>,

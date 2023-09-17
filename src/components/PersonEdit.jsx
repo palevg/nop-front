@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useRef } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
@@ -22,13 +22,13 @@ export const PersonEdit = (props) => {
   const [dateStartWork, setDateStartWork] = useState(newPerson ? null : dayjs(props.person.DateStartWork));
   const [posada, setPosada] = useState(props.person.Posada);
   const [fotoUrl, setFotoUrl] = useState(props.person.PhotoFile);
-  const inputFileRef = React.useRef(null);
+  const inputFileRef = useRef(null);
   const [enableFields, setEnableFields] = useState(!newPerson);
   const [sameInfoList, setSameInfoList] = useState([]);
   const [sameInfoShort, setSameInfoShort] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const radioGroupRef = React.useRef(null);
-  const [dialogValue, setDialogValue] = React.useState('0');
+  const radioGroupRef = useRef(null);
+  const [dialogValue, setDialogValue] = useState('0');
   const titleText = " особи зазвичай не змінюється, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба це відредагувати - зробіть подвійний клік.";
 
   const { register, handleSubmit, getValues, setValue, formState: { errors, isValid } } = useForm({
@@ -110,17 +110,17 @@ export const PersonEdit = (props) => {
       .then(res => {
         if (res.data.length) {
           setSameInfoList(res.data);
-          let sn = [];
-          res.data.map((item, index) => {
-            sn.push({
-              id: item.Id, text: item.Name +
-                (item.Indnum !== null ? ', ідент.код ' + item.Indnum : '') +
-                (item.Birth !== null ? ', дата народж. ' + item.Birth.split("-").reverse().join(".") : '') +
-                (item.BirthPlace !== null ? ', місце народж.: ' + item.BirthPlace : '')
+          let sameNames = [];
+          res.data.forEach(person => {
+            sameNames.push({
+              id: person.Id, text: person.Name +
+                (person.Indnum !== null ? ', ідент.код ' + person.Indnum : '') +
+                (person.Birth !== null ? ', дата народж. ' + person.Birth.split("-").reverse().join(".") : '') +
+                (person.BirthPlace !== null ? ', місце народж.: ' + person.BirthPlace : '')
             })
           });
-          sn.push({ id: 0, text: 'записати нову особу з таким же ПІБ' });
-          setSameInfoShort(sn);
+          sameNames.push({ id: 0, text: 'записати нову особу з таким же ПІБ' });
+          setSameInfoShort(sameNames);
           setOpenDialog(true);
         }
       })
@@ -258,6 +258,7 @@ export const PersonEdit = (props) => {
       <Dialog
         sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 535 } }}
         maxWidth="sm"
+        // maxWidth values ['xs', 'sm', 'md', false]
         TransitionProps={{ onEntering: handleDialogEntering }}
         open={openDialog}
       >
