@@ -37,7 +37,10 @@ export const OrdersList = (props) => {
   });
 
   const handleEdit = row => {
-    if (props.heads.length > 0) setEditOrder(row)
+    if (props.heads.length > 0) {
+      props.updateEditMode(row);
+      setEditOrder(row);
+    }
     else toast.warn("Для можливості редагування заяв внесіть дані про хоча б одного керівника цієї юридичної особи!");
   }
 
@@ -218,10 +221,11 @@ export const OrdersList = (props) => {
     {
       editOrder === null
         ? <div>
-          <div className="list-item flex-end list-header list-item__center">
+          <div className="list-item flex-end list-header">
             <div className="list-item__order-date" style={{ marginLeft: 28 }}>Дата</div>
+            <div className="list-item__order-head">Подавач</div>
             <div className="list-item__order-state">Стан</div>
-            {currentUser.acc > 1 && <div className="list-item__buttons4"/>}
+            {currentUser.acc > 1 && <div className="list-item__buttons4" />}
           </div>
           {props.source.map((item, index) =>
             <div className="list-item" key={index}>
@@ -232,6 +236,7 @@ export const OrdersList = (props) => {
                 }
                 <div className="list-item__visible-data list-item__center">
                   <div className="list-item__order-date">{checkDate(item.DateZajav, '')}</div>
+                  <div className="list-item__order-head"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
                   <div className="list-item__order-state">{orderState[item.State]}</div>
                 </div>
                 {currentUser.acc > 1 &&
@@ -262,7 +267,7 @@ export const OrdersList = (props) => {
               <div className="list-item__invisible">
                 <div>Заява щодо {orderType[item.OrderType]} категорії {item.Category}</div>
                 {item.NumZajav !== null && <div>Реєстраційний номер: {item.NumZajav}</div>}
-                {item.HumanId !== 0 && <div>Подавач: <Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>}
+                {item.HumanId !== 0 && <div className="list-item__invisible-info">Подавач: <Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>}
                 {item.Options === null || item.Options === '' ? <></> : <div>Додаткова інформація: {item.Options}</div>}
               </div>
             </div>
@@ -273,6 +278,7 @@ export const OrdersList = (props) => {
           heads={props.heads}
           updateEditing={updateEditing}
           updateList={props.updateList}
+          updateEditMode={props.updateEditMode}
           editor={currentUser.Id}
         />
     }

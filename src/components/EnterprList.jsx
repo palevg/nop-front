@@ -1,7 +1,24 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Loader from './UI/Loader/Loader';
 
 export const EnterprList = ({ enterprs, loading, title, titleSize }) => {
+  const [currentRow, setCurrentRow] = useState({ field: 1, direction: 0 });
+
+  const rowSorting = (sortRow) => {
+    const fieldName = ["", "KeyName", "Ident"];
+    if (sortRow === currentRow.field && currentRow.direction === 1) {
+      setCurrentRow({ field: sortRow, direction: 2 });
+      enterprs.sort((a, b) => a[fieldName[sortRow]].localeCompare(b[fieldName[sortRow]], "uk")).reverse();
+    } else {
+      setCurrentRow({ field: sortRow, direction: 1 });
+      enterprs.sort((a, b) => a[fieldName[sortRow]].localeCompare(b[fieldName[sortRow]], "uk"));
+    }
+  }
+
+  useEffect(() => {
+    rowSorting(currentRow.field);
+  }, [enterprs]);
 
   return enterprs.length > 0
     ? <div className="enterpr__font">
@@ -10,8 +27,14 @@ export const EnterprList = ({ enterprs, loading, title, titleSize }) => {
         : <h2 className="page-header__text">{title}</h2>
       }
       <div className="enterpr__header">
-        <div>Назва</div>
-        <div>Код за ЄДРПОУ</div>
+        <div className="enterpr__header-row" onClick={() => rowSorting(1)}>
+          Назва
+          <span>{currentRow.field === 1 && (currentRow.direction === 1 ? "▼" : "▲")}</span>
+        </div>
+        <div className="enterpr__header-row" onClick={() => rowSorting(2)}>
+          Код за ЄДРПОУ
+          <span>{currentRow.field === 2 && (currentRow.direction === 1 ? "▼" : "▲")}</span>
+        </div>
       </div>
       {enterprs.map((enterpr, index) =>
         <div className="enterpr__item" key={index}>

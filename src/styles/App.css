@@ -6,7 +6,8 @@
     box-sizing: border-box;
 }
 
-body, .enterpr__font {
+body,
+.enterpr__font {
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
 }
@@ -107,7 +108,17 @@ a:active {
     display: flex;
     justify-content: space-between;
     font-weight: 600;
-    padding: 5px 15px;
+    padding: 5px 20px;
+}
+
+.enterpr__header-row {
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.enterpr__header-row>span {
+    position: absolute;
+    margin-left: 5px;
 }
 
 .enterpr__item {

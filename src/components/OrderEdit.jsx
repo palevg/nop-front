@@ -63,13 +63,20 @@ export const OrderEdit = (props) => {
       toast.warn("Для інформації: ви не зробили жодних змін у даних про заяву.");
     }
     props.updateEditing(null);
+    props.updateEditMode(null);
   }
 
   const handleCancelClick = () => {
     const values = getValues();
-    isDataChanged(values)
-      ? window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?') && props.updateEditing(null)
-      : props.updateEditing(null)
+    if (isDataChanged(values)) {
+      if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
+        props.updateEditing(null);
+        props.updateEditMode(null);
+      }
+    } else {
+      props.updateEditing(null);
+      props.updateEditMode(null);
+    }
   }
 
   return (<Paper elevation={3} sx={{ maxWidth: 880, p: 3, ml: "auto", mr: "auto", mb: 3 }}>
@@ -138,8 +145,8 @@ export const OrderEdit = (props) => {
         {...register('options')}
         size="small"
         fullWidth />
-      <Button disabled={!isValid} type="submit" size="large" variant="contained" sx={{ mr: 2, mb: 2 }}>Зберегти</Button>
-      <Button onClick={handleCancelClick} type="button" size="large" variant="outlined" sx={{ mb: 2 }}>Скасувати</Button>
+      <Button disabled={!isValid} type="submit" size="large" variant="contained" sx={{ mr: 2 }}>Зберегти</Button>
+      <Button onClick={handleCancelClick} type="button" size="large" variant="outlined">Скасувати</Button>
     </form>
   </Paper>)
 }

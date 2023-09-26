@@ -83,6 +83,10 @@
     min-width: 100px;
 }
 
+.list-item__order-head {
+    min-width: 360px;
+}
+
 .list-item__order-state {
     width: 100%;
     margin-left: 5px;
@@ -103,21 +107,21 @@
 }
 
 .list-item__lic-kateg {
-    width: 70px;
+    min-width: 60px;
 }
 
 .list-item__lic-number {
-    width: 130px;
+    min-width: 130px;
     margin-left: 5px;
 }
 
 .list-item__lic-date {
-    width: 120px;
+    min-width: 110px;
     margin-left: 5px;
 }
 
 .list-item__lic-state {
-    width: 200px;
+    width: 100%;
     margin-left: 20px;
 }
 
@@ -281,11 +285,26 @@
     .person-posada__edit {
         flex-wrap: wrap;
     }
+
+    .list-item__order-head,
+    .list-item__lic-date {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .list-item__invisible-info {
+        display: none;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
     .fullPage {
         width: 760px;
+    }
+
+    .list-item__order-head {
+        min-width: 280px;
     }
 
     .list-item__obj-type {
@@ -335,20 +354,15 @@
     }
 
     .list-item__lic-kateg {
-        width: 60px;
+        min-width: 40px;
     }
 
     .list-item__lic-number {
-        width: 120px;
-    }
-
-    .list-item__lic-date {
-        width: 110px;
+        min-width: 120px;
     }
 
     .list-item__lic-state {
         margin-left: 14px;
-        width: 160px;
     }
 
     .list-item__obj-type {
@@ -432,20 +446,15 @@
     }
 
     .list-item__lic-kateg {
-        width: 50px;
+        min-width: 40px;
     }
 
     .list-item__lic-number {
-        width: 110px;
-    }
-
-    .list-item__lic-date {
-        width: 100px;
+        min-width: 80px;
     }
 
     .list-item__lic-state {
         margin-left: 10px;
-        width: 100px;
     }
 
     .list-item__switch {

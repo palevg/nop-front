@@ -114,7 +114,7 @@ const EnterprPage = () => {
         setCheckings(response.data.filter(item => item.res_key === 9));
       })
       .catch(err => {
-        // alert(err.response.data.message);
+        alert(err.response.data.message);
       });
   });
 
@@ -329,11 +329,11 @@ const EnterprPage = () => {
               {editPerson === null && editMode === null && oldHeads && <HeadsList source={heads.filter(heads => heads.State === 1)} role={true} active={false} sequr={false} buttons={false} />}
             </TabPanel>
             <TabPanel value={value} index={3}>
-              <OrdersList source={orders} heads={uniqueHeads()} updateList={updateOrdersList} updateList2={updateLicensesList} />
+              <OrdersList source={orders} heads={uniqueHeads()} updateList={updateOrdersList} updateList2={updateLicensesList} updateEditMode={updateEditMode} />
             </TabPanel>
             <TabPanel value={value} index={4}>
               {licenses.length > 0
-                ? <LicensesList source={licenses} />
+                ? <LicensesList source={licenses} updateList={updateLicensesList} updateEditMode={updateEditMode} />
                 : <div className="block-header">Ліцензій підприємство ще не отримувало</div>
               }
             </TabPanel>
