@@ -7,7 +7,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Paper, FormControl, Typography, TextField, IconButton, OutlinedInput, InputLabel, InputAdornment } from "@mui/material";
 import "../styles/Login.css";
 
-export const Login = () => {
+export default function Login() {
   let ip;
   const getIP = async () => { await axios.get('https://api.ipify.org/').then(response => ip = response.data) }
   getIP();

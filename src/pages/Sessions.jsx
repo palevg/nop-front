@@ -5,7 +5,7 @@ import Error from './Error';
 import Loader from '../components/UI/Loader/Loader';
 import { useFetching } from '../hooks/useFetching';
 
-const Sessions = () => {
+export default function Sessions() {
   const { isAuth, currentUser } = useContext(AuthContext);
   const [sessions, setSessions] = useState([]);
 
@@ -31,12 +31,12 @@ const Sessions = () => {
               <div>Кінець сеансу</div>
               <div>IP входу</div>
             </div>
-            {sessions.map((item, index) =>
-              <div className="enterpr__item" key={index}>
-                <div>{item.UserName}</div>
-                <div>{item.DateTimeStart}</div>
-                <div>{item.DateTimeFinish}</div>
-                <div>{item.HostIP}</div>
+            {sessions.map(session =>
+              <div className="enterpr__item" key={session.Id}>
+                <div>{session.UserName}</div>
+                <div>{session.DateTimeStart}</div>
+                <div>{session.DateTimeFinish}</div>
+                <div>{session.HostIP}</div>
               </div>
             )}
           </div>
@@ -51,5 +51,3 @@ const Sessions = () => {
       : <Error />
     : <Error />
 }
-
-export default Sessions;

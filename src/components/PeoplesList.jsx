@@ -17,8 +17,8 @@ export const PeoplesList = ({ peoples, loading }) => {
           </tr>
         </thead>
         <tbody>
-          {peoples.map((person, index) =>
-            <tr key={index}>
+          {peoples.map(person =>
+            <tr key={person.Id}>
               <td className="person-item__name"><Link to={`/peoples/${person.Id}`}>{person.Name}</Link></td>
               <td className="person-item__birth">{checkDate(person.Birth, '')}</td>
               <td className="person-item__id">{person.Indnum}</td>

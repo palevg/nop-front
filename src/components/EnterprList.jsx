@@ -36,8 +36,8 @@ export const EnterprList = ({ enterprs, loading, title, titleSize }) => {
           <span>{currentRow.field === 2 && (currentRow.direction === 1 ? "▼" : "▲")}</span>
         </div>
       </div>
-      {enterprs.map((enterpr, index) =>
-        <div className="enterpr__item" key={index}>
+      {enterprs.map(enterpr =>
+        <div className="enterpr__item" key={enterpr.Id}>
           <Link to={`/enterprs/${enterpr.Id}`}>{enterpr.FullName}</Link>
           <div>{enterpr.Ident}</div>
         </div>

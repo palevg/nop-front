@@ -4,15 +4,14 @@ import EnterprService from '../API/EnterprService';
 import { useFetching } from '../hooks/useFetching';
 import { EnterprList } from '../components/EnterprList';
 import { EnterprEdit } from "../components/EnterprEdit";
-import { regionNames, licensesState, ordersState } from "../utils/data";
+import { regionNames, licensesStates, ordersStates } from "../utils/data";
 import { Dialog, Box, DialogContent, DialogActions, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, TextField, MenuItem, Button } from "@mui/material";
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 
-const Enterprs = () => {
+export default function Enterprises() {
   const { currentUser, enterprList, newEnterprList, searchValues } = useContext(AuthContext);
   const [enterprs, setEnterprs] = useState(enterprList);
   const [editEnterpr, setEditEnterpr] = useState(null);
-  const updateEditing = (value) => { setEditEnterpr(value); }
   const [openDialog, setOpenDialog] = useState(enterprs.length ? false : true);
   const [searchArea, setSearchArea] = useState(searchValues.area);
   const [searchLicense, setSearchLicense] = useState(searchValues.license);
@@ -50,7 +49,7 @@ const Enterprs = () => {
   });
 
   return editEnterpr
-    ? <EnterprEdit addNew={true} enterpr={newEnterprData} afil={[]} updateEditing={updateEditing} editor={currentUser.Id} />
+    ? <EnterprEdit addNew={true} enterpr={newEnterprData} afil={[]} setEditEnterpr={setEditEnterpr} editor={currentUser.Id} />
     : <div className="list-page">
       <Dialog maxWidth="xs" open={openDialog}>
         <Box sx={{ width: 300 }}>
@@ -77,8 +76,8 @@ const Enterprs = () => {
               size="small"
               fullWidth
             >
-              {licensesState.map((item, index) =>
-                <MenuItem key={index} value={index}>{item}</MenuItem>
+              {licensesStates.map((licensesState, index) =>
+                <MenuItem key={index} value={index}>{licensesState}</MenuItem>
               )}
             </TextField>}
             {searchArea === "1" && <TextField
@@ -90,22 +89,21 @@ const Enterprs = () => {
               size="small"
               fullWidth
             >
-              {ordersState.map((item, index) =>
-                <MenuItem key={index} value={index}>{item}</MenuItem>
+              {ordersStates.map((ordersState, index) =>
+                <MenuItem key={index} value={index}>{ordersState}</MenuItem>
               )}
             </TextField>}
             <TextField
               sx={{ mb: 2 }}
               label="Територія пошуку"
-              id="select-region"
               select
               value={searchRegion}
               onChange={(event) => { setSearchRegion(event.target.value) }}
               size="small"
               fullWidth
             >
-              {regionNames.map((item, index) =>
-                <MenuItem key={index} value={index}>{item}</MenuItem>
+              {regionNames.map(regionName =>
+                <MenuItem key={regionName.Id} value={regionName.Id}>{regionName.NameRegion}</MenuItem>
               )}
             </TextField>
             <TextField
@@ -132,7 +130,7 @@ const Enterprs = () => {
           </DialogContent>
           <DialogActions>
             <Button sx={{ mb: 2 }} onClick={() => onSubmit()} variant="contained">ПІДТВЕРДИТИ</Button>
-            <Button sx={{ mr: 2, mb: 2 }} onClick={() => setOpenDialog(false)}>СКАСУВАТИ</Button>
+            <Button sx={{ mr: 2, mb: 2 }} onClick={() => setOpenDialog(false)} variant="outlined">СКАСУВАТИ</Button>
           </DialogActions>
         </Box>
       </Dialog>
@@ -143,12 +141,12 @@ const Enterprs = () => {
             {enterprs.length === 1 && ' юридична особа'}
             {enterprs.length > 1 && enterprs.length < 5 && ' юридичні особи'}
             {(enterprs.length === 0 || enterprs.length > 4) && ' юридичних осіб'}
-            {enterprs.length > 0 && ': регіон - ' + regionNames[dataToSearch.region]}
+            {': регіон - ' + regionNames[dataToSearch.region].NameRegion}
             {dataToSearch.name && ', назва містить "' + dataToSearch.name + '"'}
             {dataToSearch.edrpou && ', код ЄДРПОУ містить "' + dataToSearch.edrpou + '"'}
             {dataToSearch.address && ', адреса містить "' + dataToSearch.address + '"'}
-            {dataToSearch.area === "0" && '; стан ліцензій - ' + licensesState[dataToSearch.license]}
-            {dataToSearch.area === "1" && '; стан заяв - ' + ordersState[dataToSearch.order]}
+            {dataToSearch.area === "0" && '; стан ліцензій - ' + licensesStates[dataToSearch.license]}
+            {dataToSearch.area === "1" && '; стан заяв - ' + ordersStates[dataToSearch.order]}
           </div>
         </div>
         {currentUser !== null && currentUser.acc > 1 && <div className="buttons-top__new">
@@ -159,5 +157,3 @@ const Enterprs = () => {
       <EnterprList enterprs={enterprs} loading={isEnterprLoading} title="Юридичні особи" titleSize={true} />
     </div>
 }
-
-export default Enterprs;

@@ -62,7 +62,7 @@ const Header = () => {
     setAnchorElUser(null);
     if (window.confirm('Ви впевнені, що хочете завершити роботу?'))
       logout(currentUser);
-      navigate('/');
+    navigate('/');
   }
 
   return (
@@ -117,11 +117,11 @@ const Header = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page, index) => (
+              {pages.map((page, index) =>
                 <MenuItem key={index} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
-              ))}
+              )}
               {/* {isAuth && currentUser.acc > 2 && <MenuItem onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">
                   <Link className='menu-link' to="/sessions">Сеанси роботи</Link>
@@ -150,7 +150,7 @@ const Header = () => {
             </Typography>
           </Link>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page, index) => (
+            {pages.map((page, index) =>
               <Button
                 key={index}
                 onClick={handleCloseNavMenu}
@@ -158,7 +158,7 @@ const Header = () => {
               >
                 {page}
               </Button>
-            ))}
+            )}
             {isAuth && currentUser.acc > 2 && <Button
               id="fade-button"
               aria-controls={openElAdmin ? 'fade-menu' : undefined}

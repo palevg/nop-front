@@ -1,159 +1,140 @@
 import { useContext, useState } from "react";
 import 'dayjs/locale/uk';
-import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
-import { checkDate, checkStatut } from "../utils/checkers";
-import axios from '../axios';
+import HeadsListItem from "./HeadsListItem";
+import PersonFire from "./PersonFire";
+import { Button, FormControlLabel, Switch } from "@mui/material";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { PersonEdit } from "./PersonEdit";
-import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, IconButton } from "@mui/material";
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import WorkOffIcon from '@mui/icons-material/WorkOff';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateField } from '@mui/x-date-pickers/DateField';
-import { toast } from 'react-toastify';
 
 export const HeadsList = (props) => {
-  const personType = props.sequr ? 3 : props.role ? 2 : 1;
+  const personType = props.sequr ? 0 : props.role ? 2 : 1;
   const { currentUser } = useContext(AuthContext);
+  const [showFiredPeople, setShowFiredPeople] = useState(false);
   const [editPerson, setEditPerson] = useState(null);
-  const updateEditing = (value) => { setEditPerson(value); }
-  const [openDialog, setOpenDialog] = useState(false);
+  const [statePersonEditing, setStatePersonEditing] = useState({ person: false, place: false });
   const [firePerson, setFirePerson] = useState(null);
-  const [dateExit, setDateExit] = useState(null);
 
-  const handleEdit = row => {
-    props.updateEditMode(row);
-    setEditPerson(row);
+  function TableHeader({ firedPeople }) {
+    return (<tr className="data-table__header">
+      <th>Прізвище, ім'я та по-батькові</th>
+      <th>{props.sequr
+        ? "Посада"
+        : props.role
+          ? firedPeople
+            ? "Посада, дата призначення та звільнення"
+            : "Посада, дата призначення"
+          : firedPeople
+            ? "Частка у Статутному капіталі, з ... по ..."
+            : "Частка у Статутному капіталі, з дати"}
+      </th>
+      {currentUser.acc > 1 && <th />}
+    </tr>)
   }
 
-  const handleFire = row => {
-    setFirePerson(row);
-    setOpenDialog(true);
+  const handleButtonClick = () => {
+    setStatePersonEditing({ person: true, place: true });
+    props.setEditMode(true);
+    setEditPerson({
+      Name: '', Indnum: null, Birth: null, BirthPlace: null, LivePlace: null,
+      Pasport: null, PaspDate: null, PaspPlace: null, Osvita: null, PhotoFile: null,
+      Enterprise: props.enterprId, StatutPart: null, DateEnter: null,
+      Posada: null, DateStartWork: null, inCombination: false, sequrBoss: false
+    });
   }
 
-  const handleCancel = () => {
-    setOpenDialog(false);
-    setDateExit(null);
-  };
-
-  const handleDialogClose = async () => {
-    const fireDateISO = new Date(dateExit).toISOString().substring(0, 10);
-    if (fireDateISO < (props.role ? firePerson.DateStartWork : firePerson.DateEnter)) {
-      toast.warn(props.role ? "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!" :
-        "Вивести особу зі складу засновників раніше, ніж вона стала співзасновником, неможливо!");
-    } else {
-      handleCancel();
-      const values = {};
-      values.role = props.role;
-      values.date = fireDateISO;
-      values.id = firePerson.Id;
-      values.editor = currentUser.Id;
-      await axios.patch("/peoples/exit", values)
-        .then(res => {
-          toast.success(res.data);
-        })
-        .catch(err => {
-          toast.error(err.response.data);
-        });
-      await axios.get((props.role ? "/heads/" : "/founders/") + firePerson.Enterprise)
-        .then(res => {
-          props.updateList(res.data);
-        })
-        .catch(err => {
-          toast.error(err.response.data);
-        });
+  return (<>
+    <PersonFire
+      firePerson={firePerson}
+      setFirePerson={setFirePerson}
+      role={props.role}
+      updateList={props.updateList}
+      editor={currentUser.Id}
+    />
+    {editPerson === null
+      ? <>
+        {props.source.length > 0
+          ? <>
+            {!props.role && <div className="block-header">Засновники - фізичні особи:</div>}
+            <table className="data-table">
+              <thead>
+                <TableHeader firedPeople={false} />
+              </thead>
+              <tbody>
+                {props.source.filter(person => person.State === 0).map(person =>
+                  <HeadsListItem
+                    key={person.Id}
+                    person={person}
+                    role={props.role}
+                    active={true}
+                    sequr={props.sequr}
+                    setEditMode={props.setEditMode}
+                    setEditPerson={setEditPerson}
+                    setStatePersonEditing={setStatePersonEditing}
+                    setFirePerson={setFirePerson}
+                  />
+                )}
+                {showFiredPeople && <>
+                  <TableHeader firedPeople={true} />
+                  {props.source.filter(person => person.State === 1).map(person =>
+                    <HeadsListItem
+                      key={person.Id}
+                      person={person}
+                      role={props.role}
+                      active={false}
+                      sequr={props.sequr}
+                      setEditMode={props.setEditMode}
+                      setEditPerson={setEditPerson}
+                      setStatePersonEditing={setStatePersonEditing}
+                      setFirePerson={setFirePerson}
+                    />
+                  )}
+                </>}
+              </tbody>
+            </table>
+          </>
+          : <div className="block-header">{props.sequr
+            ? "Персоналу охорони у юридичної особи на даний час немає"
+            : props.role
+              ? "Керівників у юридичної особи на даний час немає"
+              : "Фізичних осіб у складі засновників немає"}
+          </div>}
+        {currentUser.acc > 1 && <div>
+          <Button
+            sx={{ mb: 3, ml: 3, mt: 3 }}
+            onClick={handleButtonClick}
+            variant="contained"
+            startIcon={<PersonAddIcon />}
+          >{props.sequr
+            ? "Додати нового працівника охорони"
+            : props.role
+              ? "Додати нового керівника"
+              : "Додати нового співзасновника - фізичну особу"}
+          </Button>
+        </div>}
+        {props.source.filter(person => person.State === 1).length > 0 && <FormControlLabel
+          label={props.sequr
+            ? "показати звільнених працівників охорони"
+            : props.role
+              ? "показати попередніх керівників"
+              : "показати попередніх засновників - фізичних осіб"}
+          control={<Switch
+            checked={showFiredPeople}
+            onChange={() => showFiredPeople ? setShowFiredPeople(false) : setShowFiredPeople(true)}
+            inputProps={{ 'aria-label': 'controlled' }} />}
+        />}
+      </>
+      : <PersonEdit
+        person={editPerson}
+        personType={personType}
+        enterprId={props.enterprId}
+        simpleEdit={false}
+        setEditPerson={setEditPerson}
+        updateList={props.updateList}
+        setEditMode={props.setEditMode}
+        isNewPerson={statePersonEditing}
+        editor={currentUser.Id}
+      />
     }
-  };
-
-  return (
-    <div>
-      <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-        <Dialog
-          sx={{ '& .MuiDialog-paper': { width: '80%' } }}
-          maxWidth="xs"
-          open={openDialog}
-        >
-          <DialogTitle>
-            Вкажіть дату {props.role ? "звільнення з посади" : "виведення зі складу засновників"}
-          </DialogTitle>
-          <DialogContent>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
-              <DateField
-                sx={{ width: 150, ml: 15 }}
-                value={dateExit}
-                onChange={(newValue) => setDateExit(newValue)}
-                size="small"
-              />
-            </LocalizationProvider>
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleCancel} variant="outlined">СКАСУВАТИ</Button>
-            <Button onClick={handleDialogClose} disabled={isNaN(dateExit) || Boolean(dateExit === null)} variant="contained">ПІДТВЕРДИТИ</Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-      {editPerson === null
-        ? <div>
-          <div className="list-item flex-end list-header">
-            <div className="list-item__humanName">Прізвище, ім'я та по-батькові</div>
-            <div className="list-item__humanState">{
-              props.sequr
-                ? "Посада"
-                : props.role
-                  ? props.active
-                    ? "Посада, дата призначення"
-                    : "Посада, дата призначення та звільнення"
-                  : props.active
-                    ? "Частка у Статутному капіталі, з дати"
-                    : "Частка у Статутному капіталі, з ... по ..."
-            }</div>
-          </div>
-          {props.source.map((item, index) =>
-            <div className="list-item flex-end" key={index} >
-              <div className="list-item__humanName"><Link to={`/peoples/${item.HumanId}`}>{item.Name}</Link></div>
-              <div className="list-item__humanState">{
-                props.sequr
-                  ? item.Posada
-                  : props.role
-                    ? props.active
-                      ? item.InCombination
-                        ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ")
-                        : item.Posada + checkDate(item.DateStartWork, " з ")
-                      : item.InCombination
-                        ? item.Posada + " (за сумісн.) " + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
-                        : item.Posada + checkDate(item.DateStartWork, " з ") + checkDate(item.DateOfFire, " по ")
-                    : props.active
-                      ? checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ")
-                      : checkStatut(item.StatutPart) + checkDate(item.DateEnter, " з ") + checkDate(item.DateExit, " по ")
-              }</div>
-              {currentUser.acc > 1 && props.buttons &&
-                <div className="list-item__buttons2">
-                  <Tooltip title="Редагувати дані">
-                    <IconButton size="small" color="primary" aria-label="edit" onClick={handleEdit.bind(null, item)}>
-                      <EditNoteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={props.role ? "Звільнити з посади" : "Вивести зі складу засновників"}>
-                    <IconButton size="small" color="primary" aria-label="delete" onClick={handleFire.bind(null, item)}>
-                      <WorkOffIcon fontSize="inherit" />
-                    </IconButton>
-                  </Tooltip>
-                </div>}
-            </div>
-          )}
-        </div>
-        : <PersonEdit
-          person={editPerson}
-          personType={personType}
-          simpleEdit={false}
-          updateEditing={updateEditing}
-          updateList={props.updateList}
-          updateEditMode={props.updateEditMode}
-          isNewPerson={{ person: false, place: false }}
-          editor={currentUser.Id}
-        />
-      }
-    </div>
-  )
+  </>)
 }

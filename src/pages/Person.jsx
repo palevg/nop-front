@@ -12,13 +12,11 @@ import { Button } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import "../styles/pages.css";
 
-const Person = () => {
+export default function Person() {
   const { isAuth, currentUser } = useContext(AuthContext);
   const params = useParams();
   const [person, setPerson] = useState({});
   const [editPerson, setEditPerson] = useState(null);
-  const updateEditing = (value) => { setEditPerson(value); }
-  const updatePerson = (value) => { setPerson(value); }
   const [founder, setFounder] = useState([]);
   const [head, setHead] = useState([]);
   const [employee, setEmployee] = useState([]);
@@ -80,8 +78,8 @@ const Person = () => {
               person={editPerson}
               personType={0}
               simpleEdit={true}
-              updateEditing={updateEditing}
-              updateList={updatePerson}
+              setEditPerson={setEditPerson}
+              updateList={setPerson}
               isNewPerson={{ person: false, place: false }}
               editor={currentUser.Id} />
             }
@@ -93,5 +91,3 @@ const Person = () => {
         : <Error />
     : <Error />
 }
-
-export default Person;

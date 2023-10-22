@@ -7,8 +7,8 @@ export const EnterprsAfil = (props) => {
   const [enterprNames, setEnterprNames] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  const [listAfilEnterprs] = useState(props.afil.map((item) => item.Id));
-  const [listAfilEnterprsBase] = useState(props.afil.map((item) => item.Id));
+  const [listAfilEnterprs] = useState(props.afil.map(item => item.Id));
+  const [listAfilEnterprsBase] = useState(props.afil.map(item => item.Id));
 
   const getEnterprList = async () => {
     const { data } = await axios.get('/enterprlist/' + props.id);
@@ -31,23 +31,19 @@ export const EnterprsAfil = (props) => {
   }
 
   const handleSubmit = async () => {
-    props.updateEditing(false);
+    props.setOpenDialog(false);
     const isEqual = listAfilEnterprs.length === listAfilEnterprsBase.length &&
       listAfilEnterprs.every((value) => listAfilEnterprsBase.filter(item => item === value).length === 1);
     if (!isEqual) {
       await axios.post("/enterprs/listafil", { list: listAfilEnterprs.join(",") })
         .then(res => {
-          props.updateInfo(res.data);
+          props.updateList(res.data);
         })
         .catch(err => {
           window.alert(err.response.data);
         });
     }
   }
-
-  const handleCancel = () => {
-    props.updateEditing(false);
-  };
 
   useEffect(() => {
     getEnterprList();
@@ -73,10 +69,10 @@ export const EnterprsAfil = (props) => {
                 onChange={(event) => handleChangeName(event.target.value.replace(/[A-ZА-ЯІЇЄ']/g, ""))}
                 size="small"
                 fullWidth />
-              <div className="dialog-wrap">
-                <div className="dialog-wrap__content">
-                  {filteredNames.map((item) =>
-                    <div className="dialog-wrap__item" key={item.Id}>
+              <div className="enterprs-list-wrap">
+                <div className="enterprs-list-wrap__content">
+                  {filteredNames.map(item =>
+                    <div className="enterprs-list-wrap__item" key={item.Id}>
                       <input type="checkbox" id={"cb" + item.Id} onClick={() => changeList(item.Id)}
                         defaultChecked={listAfilEnterprs.filter(listAfilEnterprs => listAfilEnterprs === item.Id).length > 0}
                       />
@@ -93,7 +89,7 @@ export const EnterprsAfil = (props) => {
           }
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancel} variant="outlined">СКАСУВАТИ</Button>
+          <Button onClick={() => props.setOpenDialog(false)} variant="outlined">СКАСУВАТИ</Button>
           <Button onClick={handleSubmit} sx={{ mr: 2 }} variant="contained">ПІДТВЕРДИТИ</Button>
         </DialogActions>
       </Dialog>

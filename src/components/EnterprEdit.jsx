@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
-import { regionNames, opForms, formVlasn, activities, taxState, riskState } from "../utils/data";
+import { regionNames, opForms, ownershipForms, activities, taxStates, riskStates } from "../utils/data";
 import { useForm } from 'react-hook-form';
 import { Paper, TextField, InputAdornment, Button, MenuItem, Box, Typography, List, ListItem, IconButton, ListItemAvatar, ListItemText, Avatar } from "@mui/material";
 import SecurityIcon from '@mui/icons-material/Security';
@@ -21,9 +21,7 @@ export const EnterprEdit = (props) => {
   const [shevronUrl, setShevronUrl] = useState(props.enterpr.Shevron);
   const inputFileRef = useRef(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const updateEditing = (value) => { setOpenDialog(value); }
   const [listAfilEnt, setListAfilEnt] = useState(props.afil);
-  const updateAfilEnterpr = (value) => { setListAfilEnt(value); }
 
   const { register, handleSubmit, getValues, setValue, formState: { errors, isValid } } = useForm({
     defaultValues: {
@@ -133,7 +131,7 @@ export const EnterprEdit = (props) => {
         await axios.post("/enterpr/new", values)
           .then(res => {
             toast.success(res.data.message);
-            props.updateEditing(null);
+            props.setEditEnterpr(null);
             navigate('/enterprs/' + res.data.newId);
           })
           .catch(err => {
@@ -148,7 +146,7 @@ export const EnterprEdit = (props) => {
           .catch(err => {
             toast.error(err.response.data);
           });
-        props.updateEditing(null);
+        props.setEditEnterpr(null);
         await axios.get("/enterpr/" + props.enterpr.Id)
           .then(res => {
             props.updateInfo(res.data[0]);
@@ -160,15 +158,15 @@ export const EnterprEdit = (props) => {
       }
     } else {
       toast.info("Ви не зробили жодних змін у даних про юридичну особу.");
-      props.updateEditing(null);
+      props.setEditEnterpr(null);
     }
   };
 
   const handleCancelClick = () => {
     const values = getValues();
     isDataChanged(values)
-      ? window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?') && props.updateEditing(null)
-      : props.updateEditing(null)
+      ? window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?') && props.setEditEnterpr(null)
+      : props.setEditEnterpr(null)
   }
 
   return (<div className="fullPage">
@@ -199,9 +197,9 @@ export const EnterprEdit = (props) => {
           size="small"
           {...register('region')}
         >
-          {regionNames.slice(1).map((option, index) => (
-            <MenuItem key={index} value={++index}>{option}</MenuItem>
-          ))}
+          {regionNames.slice(1).map(regionName =>
+            <MenuItem key={regionName.Id} value={regionName.Id}>{regionName.NameRegion}</MenuItem>
+          )}
         </TextField><br />
         <TextField
           sx={{ mb: 2, mr: 2, width: 160 }}
@@ -254,9 +252,9 @@ export const EnterprEdit = (props) => {
           size="small"
           {...register('opForm', { required: "Обов'язкове поле" })}
         >
-          {opForms.map((option, index) => (
-            <MenuItem key={index} value={option.Id}>{option.Name} (код {option.Code})</MenuItem>
-          ))}
+          {opForms.map(opForm =>
+            <MenuItem key={opForm.Id} value={opForm.Id}>{opForm.Name} (код {opForm.Code})</MenuItem>
+          )}
         </TextField>
         <TextField
           sx={{ mb: 2, maxWidth: "100%" }}
@@ -266,9 +264,9 @@ export const EnterprEdit = (props) => {
           size="small"
           {...register('formVlasn', { required: "Обов'язкове поле" })}
         >
-          {formVlasn.map((option, index) => (
-            <MenuItem key={index} value={option.Id}>{option.Name}{option.Code && " (код " + option.Code + ")"}</MenuItem>
-          ))}
+          {ownershipForms.map(osForm =>
+            <MenuItem key={osForm.Id} value={osForm.Id}>{osForm.Name}{osForm.Code && " (код " + osForm.Code + ")"}</MenuItem>
+          )}
         </TextField><br />
         <TextField
           sx={{ mb: 2 }}
@@ -279,9 +277,9 @@ export const EnterprEdit = (props) => {
           {...register('vidDijal', { required: "Обов'язкове поле" })}
           fullWidth
         >
-          {activities.map((option, index) => (
-            <MenuItem key={index} value={option.Id}>{option.Name}{option.Code && " (код " + option.Code + ")"}</MenuItem>
-          ))}
+          {activities.map(activity =>
+            <MenuItem key={activity.Id} value={activity.Id}>{activity.Name}{activity.Code && " (код " + activity.Code + ")"}</MenuItem>
+          )}
         </TextField>
         <TextField
           sx={{ mb: 2 }}
@@ -337,9 +335,9 @@ export const EnterprEdit = (props) => {
           size="small"
           {...register('podatok')}
         >
-          {taxState.map((option, index) => (
-            <MenuItem key={index} value={index}>{option}</MenuItem>
-          ))}
+          {taxStates.map((taxState, index) =>
+            <MenuItem key={index} value={index}>{taxState}</MenuItem>
+          )}
         </TextField>
         <TextField
           sx={{ mb: 2, width: 160 }}
@@ -349,9 +347,9 @@ export const EnterprEdit = (props) => {
           size="small"
           {...register('stateRisk')}
         >
-          {riskState.map((option, index) => (
-            <MenuItem key={index} value={index}>{option}</MenuItem>
-          ))}
+          {riskStates.map((riskState, index) =>
+            <MenuItem key={index} value={index}>{riskState}</MenuItem>
+          )}
         </TextField><br />
         <TextField
           sx={{ mb: 2 }}
@@ -379,26 +377,26 @@ export const EnterprEdit = (props) => {
           <Typography variant="h6" align="center" gutterBottom>
             {listAfilEnt.length === 0 ? "Афільованих юридичних осіб немає" : "Афільовані юридичні особи"}
           </Typography>
-          {listAfilEnt.map((item, index) =>
+          {listAfilEnt.map(enterpr =>
             <ListItem
-              key={index}
+              key={enterpr.Id}
               secondaryAction={
-                <IconButton edge="end" aria-label="delete" title="Видалити зі списку" onClick={() => setListAfilEnt(listAfilEnt.filter(el => el.Id !== item.Id))} >
+                <IconButton edge="end" aria-label="delete" title="Видалити зі списку" onClick={() => setListAfilEnt(listAfilEnt.filter(el => el.Id !== enterpr.Id))} >
                   <DeleteIcon />
                 </IconButton>
               }
             >
               <ListItemAvatar>
-                {item.Shevron
-                  ? <Avatar alt={item.KeyName} src={`${process.env.REACT_APP_API_URL}/uploads/${item.Shevron}`} />
+                {enterpr.Shevron
+                  ? <Avatar alt={enterpr.KeyName} src={`${process.env.REACT_APP_API_URL}/uploads/${enterpr.Shevron}`} />
                   : <Avatar>
                     <SecurityIcon />
                   </Avatar>
                 }
               </ListItemAvatar>
               <ListItemText
-                primary={item.FullName}
-                secondary={"код ЄДРПОУ " + item.Ident}
+                primary={enterpr.FullName}
+                secondary={"код ЄДРПОУ " + enterpr.Ident}
               />
             </ListItem>
           )}
@@ -410,6 +408,6 @@ export const EnterprEdit = (props) => {
         <Button onClick={handleCancelClick} type="button" size="large" variant="outlined">Скасувати</Button>
       </form>
     </Paper>
-    {openDialog && <EnterprsAfil id={props.enterpr.Id} afil={listAfilEnt} open={openDialog} updateEditing={updateEditing} updateInfo={updateAfilEnterpr} />}
+    {openDialog && <EnterprsAfil id={props.enterpr.Id} afil={listAfilEnt} open={openDialog} setOpenDialog={setOpenDialog} updateList={setListAfilEnt} />}
   </div>)
 }

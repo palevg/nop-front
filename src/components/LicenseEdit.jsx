@@ -2,7 +2,7 @@ import { useState } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
-import { licenseType, licenseState } from "../utils/data";
+import { licenseTypes, licenseStates } from "../utils/data";
 import { useForm } from 'react-hook-form';
 import { Paper, TextField, MenuItem, Button } from "@mui/material";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -72,8 +72,8 @@ export const LicenseEdit = (props) => {
     } else {
       toast.warn("Для інформації: ви не зробили жодних змін у даних про ліцензію.");
     }
-    props.updateEditing(null);
-    props.updateEditMode(null);
+    props.setEditLicense(null);
+    props.setEditMode(null);
   }
 
   const handleCancelClick = () => {
@@ -81,12 +81,12 @@ export const LicenseEdit = (props) => {
     if (endless === 1 && checkDate(values.dateClose, '') !== '22.02.2222') values.dateClose = '22.02.2222';
     if (isDataChanged(values)) {
       if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
-        props.updateEditing(null);
-        props.updateEditMode(null);
+        props.setEditLicense(null);
+        props.setEditMode(null);
       }
     } else {
-      props.updateEditing(null);
-      props.updateEditMode(null);
+      props.setEditLicense(null);
+      props.setEditMode(null);
     }
   }
 
@@ -101,9 +101,9 @@ export const LicenseEdit = (props) => {
         {...register('typeLicenze', { required: "Обов'язкове поле" })}
         size="small"
       >
-        {licenseType.map((option, index) => (
-          <MenuItem key={index} value={++index}>{option}</MenuItem>
-        ))}
+        {licenseTypes.map(licType =>
+          <MenuItem key={licType.Id} value={licType.Id}>{licType.LicName}</MenuItem>
+        )}
       </TextField>
       <TextField
         sx={{ mb: 2, mr: 2, width: 80 }}
@@ -165,9 +165,9 @@ export const LicenseEdit = (props) => {
         value={valueStateLic}
         onChange={(event) => setValueStateLic(event.target.value)}
       >
-        {licenseState.map((option, index) => (
-          <MenuItem key={index} value={index}>{option}</MenuItem>
-        ))}
+        {licenseStates.map((licState, index) =>
+          <MenuItem key={index} value={index}>{licState}</MenuItem>
+        )}
       </TextField>
       <TextField
         sx={{ mb: 2 }}

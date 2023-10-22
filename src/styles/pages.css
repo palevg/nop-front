@@ -4,6 +4,8 @@
     width: 980px;
     background-color: #E0FFFF;
     box-shadow: 6px 6px 20px rgb(0 0 0 / 10%);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
 }
 
 .fullPage__name {
@@ -23,13 +25,7 @@
     padding-top: 8px;
     border-bottom: 1px solid gray;
     width: 100%;
-}
-
-.list-item,
-.block-header,
-.rowFounderE {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
+    /* text-align: center; */
 }
 
 .list-item__fieldName {
@@ -44,24 +40,18 @@
     width: 100%;
 }
 
+.list-item,
+.data-table,
+.block-header,
+.rowFounderE {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
 .block-header {
     margin: 20px auto;
-    width: 100%;
     font-size: 22px;
-}
-
-.block-header,
-.list-header {
-    text-align: center;
     color: #000080;
-}
-
-.list-item__humanName {
-    width: 480px;
-}
-
-.list-item__humanState {
-    width: 100%;
     text-align: center;
 }
 
@@ -75,68 +65,51 @@
     justify-content: space-between;
 }
 
-.list-item__center {
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 2px solid gray;
+}
+
+.data-table__header {
+    background-color: #c5eaf6;
+    color: #000080;
+    border-bottom: 2px solid gray;
+}
+
+.data-table__header>th {
+    padding: 8px 0;
+}
+
+.data-table__item {
     text-align: center;
 }
 
-.list-item__order-date {
-    min-width: 100px;
+.data-table__item-border {
+    border-bottom: 1px solid gray;
 }
 
-.list-item__order-head {
-    min-width: 360px;
+.data-table__item>td {
+    padding-top: 5px;
 }
 
-.list-item__order-state {
+.data-table__person-name {
+    min-width: 340px;
+    text-align: left;
+}
+
+.data-table__person-state {
     width: 100%;
-    margin-left: 5px;
 }
 
-.list-item__buttons2 {
+.data-table__btn-more {
     opacity: 0.2;
     transition: opacity .4s;
 }
 
-.list-item__buttons4 {
-    display: flex;
-    justify-content: flex-end;
-    min-width: 112px;
-    margin-left: 5px;
-    opacity: 0.2;
-    transition: opacity .4s;
-}
-
-.list-item__lic-kateg {
-    min-width: 60px;
-}
-
-.list-item__lic-number {
-    min-width: 130px;
-    margin-left: 5px;
-}
-
-.list-item__lic-date {
-    min-width: 110px;
-    margin-left: 5px;
-}
-
-.list-item__lic-state {
-    width: 100%;
-    margin-left: 20px;
-}
-
-.list-item__visible {
-    display: flex;
-}
-
-.list-item__visible-data {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.list-item__switch {
-    margin: 0 8px;
+.data-table__switch {
+    min-width: 32px;
+    text-align: center;
     color: #000080;
     font-weight: bold;
     cursor: pointer;
@@ -144,67 +117,86 @@
     transition: opacity .4s;
 }
 
-.list-item:hover .list-item__switch,
-.list-item:hover .list-item__buttons2,
-.list-item:hover .list-item__buttons4 {
+.data-table__item:hover .data-table__switch,
+.data-table__item:hover .data-table__btn-more {
     opacity: 1;
 }
 
-.list-item__obj-type {
-    width: 300px;
+.data-table__order-date {
+    min-width: 100px;
 }
 
-.list-item__obj-addr {
-    margin-left: 5px;
-    width: 460px;
+.data-table__order-head {
+    min-width: 360px;
 }
 
-.list-item__obj-date-header {
-    width: 190px;
+.data-table__order-state {
+    width: 100%;
 }
 
-.list-item__obj-date {
-    width: 90px;
-    margin-left: 5px;
-    text-align: right;
-}
-
-.list-item__checkbox {
+.data-table__checkbox {
     display: none;
 }
 
-.list-item__invisible {
+.data-table__more-info {
+    border-bottom: 1px solid gray;
     background-color: #cfe8e8;
-    font-size: 14px;
+    font-size: 0;
+    transition: font-size .7s;
+}
+
+.data-table__more-info div {
     padding-left: 15px;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 1s;
 }
 
-.list-item__checkbox:checked+div {
-    max-height: 200px;
+.data-table__item:has(.data-table__checkbox:checked)+tr {
+    font-size: 14px;
 }
 
-.check-header {
-    text-align: center;
-    color: #000080;
-    justify-content: space-between;
+.data-table__lic-kateg {
+    min-width: 60px;
 }
 
-.list-item__check-type {
-    width: 400px;
+.data-table__lic-number {
+    min-width: 130px;
 }
 
-.list-item__check-doc {
-    width: 280px;
-    text-align: center;
-    margin-left: 5px;
+.data-table__lic-date {
+    min-width: 110px;
 }
 
-.list-item__checker {
-    width: 150px;
-    margin-left: 5px;
+.data-table__lic-state {
+    width: 100%;
+}
+
+.data-table__obj-type {
+    min-width: 280px;
+}
+
+.data-table__item .data-table__obj-type {
+    text-align: left;
+}
+
+.data-table__obj-addr {
+    width: 100%;
+}
+
+.data-table__obj-date {
+    min-width: 100px;
+}
+
+.data-table__check-type {
+    width: 100%;
+    text-align: left;
+}
+
+.data-table__check-doc {
+    min-width: 300px;
+}
+
+.data-table__checker {
+    min-width: 172px;
+    text-align: left;
 }
 
 /* Person page */
@@ -214,7 +206,12 @@
 
 .fullPage__person-details {
     display: flex;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.fullPage__person-details > div {
+    width: 100%;
 }
 
 .fullPage__person-foto,
@@ -256,28 +253,28 @@
     text-align: center;
 }
 
-.dialog-wrap {
+.enterprs-list-wrap {
     height: 100%;
     width: 100%;
     box-sizing: border-box;
     overflow-y: scroll;
 }
 
-.dialog-wrap__content {
+.enterprs-list-wrap__content {
     max-height: 400px;
     width: 100%;
 }
 
-.dialog-wrap__item {
+.enterprs-list-wrap__item {
     font-size: 18px;
     margin-bottom: 4px;
 }
 
-.dialog-wrap__item:hover {
+.enterprs-list-wrap__item:hover {
     font-weight: 600;
 }
 
-.dialog-wrap__item input {
+.enterprs-list-wrap__item input {
     margin-right: 8px;
 }
 
@@ -286,14 +283,31 @@
         flex-wrap: wrap;
     }
 
-    .list-item__order-head,
-    .list-item__lic-date {
+    .data-table__order-head,
+    .data-table__lic-date,
+    .data-table__obj-addr,
+    .data-table__check-doc {
         display: none;
+    }
+
+    .data-table__obj-type {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .fullPage__person-foto__big {
+        display: none;
+    }
+
+    .fullPage__person-foto__small {
+        display: block;
+        margin: 0 auto 10px;
     }
 }
 
 @media (min-width: 768px) {
-    .list-item__invisible-info {
+
+    .data-table__small-screen {
         display: none;
     }
 }
@@ -303,28 +317,20 @@
         width: 760px;
     }
 
-    .list-item__order-head {
+    .data-table__order-head {
         min-width: 280px;
     }
 
-    .list-item__obj-type {
-        width: 220px;
+    .data-table__obj-type {
+        min-width: 220px;
     }
 
-    .list-item__obj-addr {
-        width: 340px;
+    .data-table__check-doc {
+        min-width: 240px;
     }
 
-    .list-item__check-type {
-        width: 300px;
-    }
-
-    .list-item__check-doc {
-        width: 200px;
-    }
-
-    .list-item__checker {
-        width: 150px;
+    .data-table__checker {
+        min-width: 164px;
     }
 }
 
@@ -341,68 +347,42 @@
         font-size: 20px;
     }
 
-    .list-item__humanName {
-        width: 280px;
+    .data-table__person-name {
+        min-width: 240px;
     }
 
-    .list-item {
+    .list-item,
+    .data-table__header,
+    .data-table__item {
         font-size: 14px;
     }
 
-    .list-item__order-date {
+    .data-table__order-date {
         min-width: 80px;
     }
 
-    .list-item__lic-kateg {
+    .data-table__lic-kateg {
         min-width: 40px;
     }
 
-    .list-item__lic-number {
+    .data-table__lic-number {
         min-width: 120px;
     }
 
-    .list-item__lic-state {
+    .data-table__lic-state {
         margin-left: 14px;
     }
 
-    .list-item__obj-type {
-        width: 150px;
-    }
-
-    .list-item__obj-addr {
-        width: fit-content;
-    }
-
-    .list-item__invisible {
+    .data-table__checkbox:checked+tr {
         font-size: 12px;
     }
 
-    .list-item__check-type {
-        width: 230px;
-    }
-
-    .list-item__check-doc {
-        width: fit-content;
-    }
-
-    .list-item__checker {
-        width: 140px;
-    }
-
-    .fullPage__person-foto__big {
-        display: none;
+    .data-table__checker {
+        min-width: 140px;
     }
 
     .fullPage__person-foto__small {
-        display: block;
         height: 300px;
-        margin: 0 auto 10px;
-    }
-}
-
-@media (min-width: 481px) {
-    .list-item__buttons2 {
-        display: flex;
     }
 }
 
@@ -415,7 +395,6 @@
         font-size: 24px;
     }
 
-    .list-item,
     .rowFounderE {
         font-size: 14px;
     }
@@ -428,73 +407,42 @@
         font-size: 18px;
     }
 
-    .list-item__humanName {
-        width: 250px;
+    .data-table__person-name {
+        min-width: 0;
+        width: 60%;
     }
 
-    .list-item {
+    .data-table__person-state {
+        width: 40%;
+    }
+
+    .list-item,
+    .data-table__header,
+    .data-table__item {
         font-size: 12px;
     }
 
-    .list-item__order-date {
+    .data-table__order-date {
         min-width: 70px;
     }
 
-    .list-item__buttons4 {
-        flex-wrap: wrap;
-        min-width: 0;
-    }
-
-    .list-item__lic-kateg {
+    .data-table__lic-kateg {
         min-width: 40px;
     }
 
-    .list-item__lic-number {
+    .data-table__lic-number {
         min-width: 80px;
     }
 
-    .list-item__lic-state {
+    .data-table__lic-state {
         margin-left: 10px;
     }
 
-    .list-item__switch {
-        margin: 0 6px;
-    }
-
-    .list-item__obj-type {
-        width: fit-content;
-    }
-
-    .list-item__obj-addr {
-        width: fit-content;
-    }
-
-    .list-item__obj-date {
-        width: 70px;
-    }
-
-    .list-item__invisible {
+    .data-table__checkbox:checked+tr {
         font-size: 10px;
     }
 
-    .list-item__check-type {
-        width: 120px;
-    }
-
-    .list-item__check-doc {
-        width: 90px;
-    }
-
-    .list-item__checker {
-        width: 100px;
-    }
-
-    .fullPage__person-foto__big {
-        display: none;
-    }
-
-    .fullPage__person-foto__small {
-        display: block;
-        margin: 0 auto 10px;
+    .data-table__checker {
+        min-width: 120px;
     }
 }

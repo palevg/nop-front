@@ -4,18 +4,18 @@ export const EntFoundersList = (props) => {
 
   return (
     <div>
-      {props.source.map((item, index) =>
-        <div className="rowFounderE" key={index}>
+      {props.source.map(enterpr =>
+        <div className="rowFounderE" key={enterpr.Id}>
           <div className="rowFounderE__entr-name">
-            <div>{item.Name}</div>
-            {item.OKPO !== null && <div className="">Реєстраційний код: {item.OKPO}</div>}
+            <div>{enterpr.Name}</div>
+            {enterpr.OKPO !== null && <div className="">Реєстраційний код: {enterpr.OKPO}</div>}
           </div>
-          <div><span style={{ fontWeight: 300 }}>Адреса:</span> {item.Address}</div>
-          <div><span style={{ fontWeight: 300 }}>Представник:</span> {item.Predstavnik}</div>
-          {item.StatutPart !== null && <div><span style={{ fontWeight: 300 }}>Частка у Статутному капіталі:</span> {checkStatut(item.StatutPart)}{checkDate(item.DateEnter, " з ")}
+          <div><span style={{ fontWeight: 300 }}>Адреса:</span> {enterpr.Address}</div>
+          <div><span style={{ fontWeight: 300 }}>Представник:</span> {enterpr.Predstavnik}</div>
+          {enterpr.StatutPart !== null && <div><span style={{ fontWeight: 300 }}>Частка у Статутному капіталі:</span> {checkStatut(enterpr.StatutPart)}{checkDate(enterpr.DateEnter, " з ")}
             {props.active
               ? ''
-              : checkDate(item.DateExit, " по ")
+              : checkDate(enterpr.DateExit, " по ")
             }
           </div>}
         </div>

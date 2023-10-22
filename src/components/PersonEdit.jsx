@@ -13,23 +13,21 @@ import { toast } from 'react-toastify';
 import axios from '../axios';
 
 const filter = createFilterOptions();
+const sameNamesList = [];
+const sameNamesCompactList = [];
+const titleText = " особи зазвичай не змінюється, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба це відредагувати - зробіть подвійний клік.";
 
 export const PersonEdit = (props) => {
   const [newPerson, setNewPerson] = useState(props.isNewPerson.person);
   const [valueBirth, setValueBirth] = useState(newPerson ? null : dayjs(props.person.Birth));
   const [valuePasp, setValuePasp] = useState(newPerson ? null : dayjs(props.person.PaspDate));
-  const [dateEnter, setDateEnter] = useState(newPerson ? null : dayjs(props.person.DateEnter));
-  const [dateStartWork, setDateStartWork] = useState(newPerson ? null : dayjs(props.person.DateStartWork));
   const [posada, setPosada] = useState(props.person.Posada);
   const [fotoUrl, setFotoUrl] = useState(props.person.PhotoFile);
+  const [disableFields, setDisableFields] = useState(!newPerson);
+  const [openSameNamesDialog, setOpenSameNamesDialog] = useState(false);
+  const [dialogSameNamesValue, setDialogSameNamesValue] = useState("0");
   const inputFileRef = useRef(null);
-  const [enableFields, setEnableFields] = useState(!newPerson);
-  const [sameInfoList, setSameInfoList] = useState([]);
-  const [sameInfoShort, setSameInfoShort] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
   const radioGroupRef = useRef(null);
-  const [dialogValue, setDialogValue] = useState('0');
-  const titleText = " особи зазвичай не змінюється, тож дані захищені від випадкового редагування.\nЯкщо ж дійсно є потреба це відредагувати - зробіть подвійний клік.";
 
   const { register, handleSubmit, getValues, setValue, formState: { errors, isValid } } = useForm({
     defaultValues: {
@@ -101,7 +99,10 @@ export const PersonEdit = (props) => {
       if (dataNotChanged === 1) return 0;
       if (dataNotChanged === 0) return 2;
     }
-    else return 1;
+    else {
+      if (dataNotChanged === 1) return 3;
+      if (dataNotChanged === 0) return 1;
+    };
   }
 
   const checkName = async () => {
@@ -109,19 +110,20 @@ export const PersonEdit = (props) => {
     values.fullName !== '' && await axios.get('/peoples/with/' + values.fullName)
       .then(res => {
         if (res.data.length) {
-          setSameInfoList(res.data);
-          let sameNames = [];
+          if (sameNamesList.length > 0) sameNamesList.length = 0;
+          if (sameNamesCompactList.length > 0) sameNamesCompactList.length = 0;
           res.data.forEach(person => {
-            sameNames.push({
+            sameNamesList.push(person);
+            sameNamesCompactList.push({
               id: person.Id, text: person.Name +
                 (person.Indnum !== null ? ', ідент.код ' + person.Indnum : '') +
                 (person.Birth !== null ? ', дата народж. ' + person.Birth.split("-").reverse().join(".") : '') +
                 (person.BirthPlace !== null ? ', місце народж.: ' + person.BirthPlace : '')
-            })
+            });
           });
-          sameNames.push({ id: 0, text: 'записати нову особу з таким же ПІБ' });
-          setSameInfoShort(sameNames);
-          setOpenDialog(true);
+          sameNamesList.filter(person => person.Id === Number(dialogSameNamesValue)).length === 0 && setDialogSameNamesValue("0");
+          sameNamesCompactList.push({ id: 0, text: 'записати нову особу з таким же ПІБ' });
+          setOpenSameNamesDialog(true);
         }
       })
       .catch(err => {
@@ -130,19 +132,15 @@ export const PersonEdit = (props) => {
   }
 
   const handleDialogEntering = () => {
-    if (radioGroupRef.current != null) {
+    if (radioGroupRef.current !== null) {
       radioGroupRef.current.focus();
     }
   };
 
-  const handleDialogChange = (event) => {
-    setDialogValue(event.target.value);
-  };
-
   const handleDialogClose = () => {
-    setOpenDialog(false);
-    if (dialogValue !== '0') {
-      const person = sameInfoList.filter(sameInfoList => sameInfoList.Id === Number(dialogValue));
+    setOpenSameNamesDialog(false);
+    if (dialogSameNamesValue !== '0') {
+      const person = sameNamesList.filter(sameNamesList => sameNamesList.Id === Number(dialogSameNamesValue));
       setFotoUrl(person[0].PhotoFile);
       setValue('foto', person[0].PhotoFile);
       setValue('indnum', person[0].Indnum);
@@ -176,7 +174,7 @@ export const PersonEdit = (props) => {
 
   const changeEnabling = () => {
     if (!newPerson) {
-      if (enableFields && window.confirm('Вам дійсно потрібно відредагувати цю інформацію?')) setEnableFields(false);
+      if (disableFields && window.confirm('Вам дійсно потрібно відредагувати цю інформацію?')) setDisableFields(false);
     }
   }
 
@@ -214,6 +212,7 @@ export const PersonEdit = (props) => {
       } else {
         if (props.personType > 0) linkToPatch += "edit";
         changingLevel === 2 ? values.updatePerson = false : values.updatePerson = true;
+        changingLevel === 3 ? values.updatePlace = false : values.updatePlace = true;
         props.personType === 0 ? values.humanId = props.person.Id : values.humanId = props.person.HumanId;
         if (props.isNewPerson.place) {
           linkToPatch += 'newplace'
@@ -236,20 +235,20 @@ export const PersonEdit = (props) => {
           toast.error(err.response.data);
         });
     } else toast.info("Ви не зробили жодних змін у даних про особу.");
-    props.updateEditing(null);
-    if (!props.simpleEdit) props.updateEditMode(null);
+    props.setEditPerson(null);
+    if (!props.simpleEdit) props.setEditMode(null);
   };
 
   const handleCancelClick = () => {
     const values = getValues();
     if (isDataChanged(values) > 0) {
       if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
-        props.updateEditing(null);
-        if (!props.simpleEdit) props.updateEditMode(null);
+        props.setEditPerson(null);
+        if (!props.simpleEdit) props.setEditMode(null);
       }
     } else {
-      props.updateEditing(null);
-      if (!props.simpleEdit) props.updateEditMode(null);
+      props.setEditPerson(null);
+      if (!props.simpleEdit) props.setEditMode(null);
     }
   }
 
@@ -260,7 +259,7 @@ export const PersonEdit = (props) => {
         maxWidth="sm"
         // maxWidth values ['xs', 'sm', 'md', false]
         TransitionProps={{ onEntering: handleDialogEntering }}
-        open={openDialog}
+        open={openSameNamesDialog}
       >
         <DialogTitle>
           <Alert severity="warning">
@@ -272,21 +271,21 @@ export const PersonEdit = (props) => {
         <DialogContent dividers>
           <RadioGroup
             ref={radioGroupRef}
-            value={dialogValue}
-            onChange={handleDialogChange}
+            value={dialogSameNamesValue}
+            onChange={e => setDialogSameNamesValue(e.target.value)}
           >
-            {sameInfoShort.map((option) => (
+            {sameNamesCompactList.map(item =>
               <FormControlLabel
-                value={option.id}
-                key={option.id}
+                value={item.id}
+                key={item.id}
                 control={<Radio />}
-                label={option.text}
+                label={item.text}
               />
-            ))}
+            )}
           </RadioGroup>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleDialogClose}>ПІДТВЕРДИТИ</Button>
+          <Button onClick={handleDialogClose}>ПІДТВЕРДИТИ</Button>
         </DialogActions>
       </Dialog>
     </Box>
@@ -306,8 +305,9 @@ export const PersonEdit = (props) => {
             <DateField
               sx={{ width: 160 }}
               label="У складі засновників з"
-              value={dateEnter}
-              onChange={(newValue) => setDateEnter(newValue)}
+              // value={dateEnter}
+              // onChange={(newValue) => setDateEnter(newValue)}
+              defaultValue={newPerson ? null : dayjs(props.person.DateEnter)}
               {...register('dateEnter', {
                 required: 'вкажіть дату у форматі ДД.ММ.РРРР',
                 pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
@@ -366,8 +366,9 @@ export const PersonEdit = (props) => {
               <DateField
                 sx={{ width: 160 }}
                 label="На посаді з"
-                value={dateStartWork}
-                onChange={(newValue) => setDateStartWork(newValue)}
+                // value={dateStartWork}
+                // onChange={(newValue) => setDateStartWork(newValue)}
+                defaultValue={newPerson ? null : dayjs(props.person.DateStartWork)}
                 {...register('dateStartWork', {
                   required: 'вкажіть дату у форматі ДД.ММ.РРРР',
                   pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
@@ -396,7 +397,7 @@ export const PersonEdit = (props) => {
         <TextField
           sx={{ mb: 2 }}
           label="Прізвище, ім'я та по-батькові"
-          disabled={enableFields}
+          disabled={disableFields}
           onDoubleClick={() => { changeEnabling() }}
           title={props.isNewPerson.person ? "" : "ПІБ" + titleText}
           error={Boolean(errors.fullName?.message)}
@@ -416,7 +417,7 @@ export const PersonEdit = (props) => {
           <DateField
             sx={{ mb: 2, mr: 2, width: 160 }}
             label="Дата народження"
-            disabled={enableFields}
+            disabled={disableFields}
             onDoubleClick={() => { changeEnabling() }}
             title={props.isNewPerson.person ? "" : "Дата народження" + titleText}
             value={valueBirth}
@@ -431,7 +432,7 @@ export const PersonEdit = (props) => {
         <TextField
           sx={{ mb: 2, width: 160 }}
           label="Ідентифікаційний код"
-          disabled={enableFields}
+          disabled={disableFields}
           onDoubleClick={() => { changeEnabling() }}
           title={props.isNewPerson.person ? "" : "Ідентифікаційний код" + titleText}
           InputLabelProps={{ shrink: values.indnum ? true : undefined }}
@@ -448,7 +449,7 @@ export const PersonEdit = (props) => {
         <TextField
           sx={{ mb: 2 }}
           label="Місце народження"
-          disabled={enableFields}
+          disabled={disableFields}
           onDoubleClick={() => { changeEnabling() }}
           title={props.isNewPerson.person ? "" : "Місце народження" + titleText}
           InputLabelProps={{ shrink: values.birthPlace ? true : undefined }}
@@ -481,6 +482,7 @@ export const PersonEdit = (props) => {
             label="дата видачі"
             value={valuePasp}
             onChange={(newValue) => setValuePasp(newValue)}
+            defaultValue={newPerson ? null : dayjs(props.person.PaspDate)}
             {...register('paspDate', {
               required: 'вкажіть дату у форматі ДД.ММ.РРРР',
               pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }

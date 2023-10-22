@@ -2,7 +2,7 @@ import { useState } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
-import { orderType, orderCategory } from "../utils/data";
+import { orderTypes, orderCategories } from "../utils/data";
 import { useForm } from 'react-hook-form';
 import { Paper, TextField, MenuItem, Button } from "@mui/material";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -62,20 +62,20 @@ export const OrderEdit = (props) => {
     } else {
       toast.warn("Для інформації: ви не зробили жодних змін у даних про заяву.");
     }
-    props.updateEditing(null);
-    props.updateEditMode(null);
+    props.setEditOrder(null);
+    props.setEditMode(null);
   }
 
   const handleCancelClick = () => {
     const values = getValues();
     if (isDataChanged(values)) {
       if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
-        props.updateEditing(null);
-        props.updateEditMode(null);
+        props.setEditOrder(null);
+        props.setEditMode(null);
       }
     } else {
-      props.updateEditing(null);
-      props.updateEditMode(null);
+      props.setEditOrder(null);
+      props.setEditMode(null);
     }
   }
 
@@ -89,9 +89,9 @@ export const OrderEdit = (props) => {
         size="small"
         {...register('orderType', { required: "Обов'язкове поле" })}
       >
-        {orderType.map((option, index) => (
-          <MenuItem key={index} value={index}>{option}</MenuItem>
-        ))}
+        {orderTypes.map((orderType, index) =>
+          <MenuItem key={index} value={index}>{orderType}</MenuItem>
+        )}
       </TextField>
       <TextField
         sx={{ mb: 2, mr: 2, width: 80 }}
@@ -101,9 +101,9 @@ export const OrderEdit = (props) => {
         size="small"
         {...register('category', { required: "Обов'язкове поле" })}
       >
-        {orderCategory.map((option, index) => (
-          <MenuItem key={index} value={option}>{option}</MenuItem>
-        ))}
+        {orderCategories.map((orderCategory, index) =>
+          <MenuItem key={index} value={orderCategory}>{orderCategory}</MenuItem>
+        )}
       </TextField>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
         <DateField
@@ -135,9 +135,9 @@ export const OrderEdit = (props) => {
         size="small"
         {...register('humanId', { required: "Обов'язкове поле" })}
       >
-        {props.heads.map((option, index) => (
-          <MenuItem key={index} value={option.HumanId}>{option.Name}</MenuItem>
-        ))}
+        {props.heads.map(person =>
+          <MenuItem key={person.Id} value={person.HumanId}>{person.Name}</MenuItem>
+        )}
       </TextField>
       <TextField
         sx={{ mb: 2 }}

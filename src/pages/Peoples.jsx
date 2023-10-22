@@ -6,7 +6,7 @@ import { PeoplesList } from "../components/PeoplesList";
 import { Dialog, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const Peoples = () => {
+export default function Peoples() {
   const [peoples, setPeoples] = useState([]);
   const [openDialog, setOpenDialog] = useState(true);
   const [queryData, setQueryData] = useState({ name: null });
@@ -79,5 +79,3 @@ const Peoples = () => {
     </div>
   )
 }
-
-export default Peoples;
