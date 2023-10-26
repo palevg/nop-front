@@ -26,19 +26,19 @@ export default function HeadsListItem(props) {
 
   return (<tr className="data-table__item data-table__item-border">
     <td className="data-table__person-name"><Link to={`/peoples/${props.person.HumanId}`}>{props.person.Name}</Link></td>
-    <td className="data-table__person-state">{props.sequr
+    <td className="data-table__person-state">{props.personType === 3
       ? props.person.Posada
-      : props.role
-        ? props.active
+      : props.personType === 2
+        ? props.firedPeople
           ? props.person.InCombination
-            ? props.person.Posada + " (за сумісн.) " + checkDate(props.person.DateStartWork, " з ")
-            : props.person.Posada + checkDate(props.person.DateStartWork, " з ")
+            ? props.person.Posada + " (за сумісн.) " + checkDate(props.person.EnterDate, " з ") + checkDate(props.person.ExitDate, " по ")
+            : props.person.Posada + checkDate(props.person.EnterDate, " з ") + checkDate(props.person.ExitDate, " по ")
           : props.person.InCombination
-            ? props.person.Posada + " (за сумісн.) " + checkDate(props.person.DateStartWork, " з ") + checkDate(props.person.DateOfFire, " по ")
-            : props.person.Posada + checkDate(props.person.DateStartWork, " з ") + checkDate(props.person.DateOfFire, " по ")
-        : props.active
-          ? checkStatut(props.person.StatutPart) + checkDate(props.person.DateEnter, " з ")
-          : checkStatut(props.person.StatutPart) + checkDate(props.person.DateEnter, " з ") + checkDate(props.person.DateExit, " по ")}
+            ? props.person.Posada + " (за сумісн.) " + checkDate(props.person.EnterDate, " з ")
+            : props.person.Posada + checkDate(props.person.EnterDate, " з ")
+        : props.firedPeople
+          ? checkStatut(props.person.StatutPart) + checkDate(props.person.EnterDate, " з ") + checkDate(props.person.ExitDate, " по ")
+          : checkStatut(props.person.StatutPart) + checkDate(props.person.EnterDate, " з ")}
     </td>
     {currentUser.acc > 1 && <td className="data-table__btn-more">
       <IconButton
@@ -70,7 +70,7 @@ export default function HeadsListItem(props) {
         {props.person.State === 0 && <MenuItem onClick={handleFire.bind(null, props.person)}>
           <ListItemIcon>
             <WorkOffIcon fontSize="inherit" />
-          </ListItemIcon>{props.role ? "Звільнити з посади" : "Вивести зі складу засновників"}</MenuItem>}
+          </ListItemIcon>{props.personType === 1 ? "Вивести зі складу засновників" : "Звільнити з посади"}</MenuItem>}
       </Menu>
     </td>}
   </tr>)

@@ -106,6 +106,17 @@ export default function CheckEdit(props) {
         checkedPointsLicUm.indexOf(point.text) === -1 ? values[point.value] = 0 : values[point.value] = 1
       )
       : pointsLicUmov.forEach(point => values[point.value] = 0)
+    if (values.licUmov === 0) {
+      values.n429 = 0;
+      values.n4210 = 0;
+      values.n4211 = 0;
+      values.n4212 = 0;
+      values.n4213 = 0;
+      values.n4214 = 0;
+      values.n4215 = 0;
+      values.n4216 = 0;
+      values.n4217 = 0;
+    }
   }
 
   const setValuesToNull = (obj) => {
@@ -124,7 +135,7 @@ export default function CheckEdit(props) {
 
   const isDataChanged = (values) => {
     setValuesToNull(values);
-    if (typeof (values.checkSertifNo) !== "number") values.checkSertifNo = Number(values.checkSertifNo);
+    if (values.checkSertifNo !== null && typeof (values.checkSertifNo) !== "number") values.checkSertifNo = Number(values.checkSertifNo);
     if (typeof (values.checkObjCount) !== "number") values.checkObjCount = Number(values.checkObjCount);
     values.licUmov = versionLicUm;
     values.noViolations = valueNoViolations ? 1 : 0;
@@ -162,8 +173,16 @@ export default function CheckEdit(props) {
   const onSubmit = async (values) => {
     if (isDataChanged(values)) {
       values.editor = props.editor;
-      values.id = props.check.Id;
-      await axios.patch("/check/edit", values)
+      let linkToPatch = "/check/";
+      if (props.isNewCheck) {
+        values.enterprId = props.check.EnterpriseID;
+        linkToPatch += "new";
+      }
+      else {
+        values.id = props.check.Id;
+        linkToPatch += "edit";
+      }
+      await axios.patch(linkToPatch, values)
         .then(res => {
           toast.success(res.data);
         })

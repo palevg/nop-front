@@ -67,8 +67,8 @@ export const LicensesList = (props) => {
       </Dialog>
     </Box>
     {editLicense === null
-      ? <>
-        <table className="data-table">
+      ? props.source.length > 0
+        ? <table className="data-table">
           <thead>
             <tr className="data-table__header">
               <th />
@@ -93,8 +93,8 @@ export const LicensesList = (props) => {
               />
             )}
           </tbody>
-        </table>
-      </>
+        </table >
+        : <div className="block-header">Юридична особа ліцензій ще не отримувала</div>
       : <LicenseEdit
         license={editLicense}
         setEditLicense={setEditLicense}

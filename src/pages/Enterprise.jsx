@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from '../axios';
 import { AuthContext } from "../context/authContext";
-import { AppBar, Box, Typography, Tabs, Tab, FormControlLabel, Switch, Button, Tooltip, IconButton } from "@mui/material";
+import { AppBar, Box, Typography, Tabs, Tab, FormControlLabel, Switch, Button } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { useFetching } from "../hooks/useFetching";
@@ -166,7 +166,7 @@ export default function Enterprise() {
                 <Tab label="КЕРІВНИКИ" disabled={Boolean(editMode && value !== 2)} {...a11yProps(2)} />
                 <Tab label="ЗАЯВИ" disabled={Boolean(editMode && value !== 3)} {...a11yProps(3)} />
                 <Tab label="ЛІЦЕНЗІЇ" disabled={Boolean(editMode && value !== 4)} {...a11yProps(4)} />
-                <Tab label={"ПРАЦІВНИКИ (" + employees.length + ")"} disabled={Boolean(editMode && value !== 5)} {...a11yProps(5)} />
+                <Tab label={"ПРАЦІВНИКИ (" + employees.filter(person => person.State === 0).length + ")"} disabled={Boolean(editMode && value !== 5)} {...a11yProps(5)} />
                 <Tab label={"ОБ'ЄКТИ (" + objects.length + ")"} disabled={Boolean(editMode && value !== 6)} {...a11yProps(6)} />
                 <Tab label={"ПЕРЕВІРКИ (" + checks.length + ")"} disabled={Boolean(editMode && value !== 7)} {...a11yProps(7)} />
               </Tabs>
@@ -180,11 +180,15 @@ export default function Enterprise() {
                   <div className="list-item__fieldName">{item.fieldName}:</div>
                   <div className="list-item__fieldValue">{item.fieldValue}</div>
                   {currentUser.acc > 1 && index === 0 &&
-                    <Tooltip title="Редагувати дані">
-                      <IconButton size="small" color="primary" aria-label="edit" onClick={() => setEditEnterpr(true)}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>}
+                    <Button
+                      sx={{ minWidth: 88 }}
+                      size="small"
+                      variant="contained"
+                      onClick={() => setEditEnterpr(true)}
+                      startIcon={<EditIcon />}
+                    >Змінити
+                    </Button>
+                  }
                 </div>
               )}
               {currentUser.acc > 1 && enterpr.HideInfo && <div className="list-item flex-end">
@@ -203,7 +207,7 @@ export default function Enterprise() {
               </div>}
             </TabPanel>
             <TabPanel value={value} index={1}>
-              <HeadsList source={founders} enterprId={params.id} role={false} sequr={false}
+              <HeadsList source={founders} enterprId={params.id} personType={1}
                 updateList={setFounders} setEditMode={setEditMode} />
               {editMode === null && foundersE.filter(foundersE => foundersE.State === 0).length > 0
                 ? <>
@@ -230,32 +234,24 @@ export default function Enterprise() {
               {editMode === null && oldFoundersE && <EntFoundersList source={foundersE.filter(foundersE => foundersE.State === 1)} active={false} />}
             </TabPanel>
             <TabPanel value={value} index={2}>
-              <HeadsList source={heads} enterprId={params.id} role={true} sequr={false}
+              <HeadsList source={heads} enterprId={params.id} personType={2}
                 updateList={setHeads} setEditMode={setEditMode} />
             </TabPanel>
             <TabPanel value={value} index={3}>
-              <OrdersList source={orders} heads={uniqueHeads()} updateList={setOrders} updateList2={setLicenses} setEditMode={setEditMode} />
+              <OrdersList source={orders} enterprId={params.id} heads={uniqueHeads()} updateList={setOrders} updateList2={setLicenses} setEditMode={setEditMode} />
             </TabPanel>
             <TabPanel value={value} index={4}>
-              {licenses.length > 0
-                ? <LicensesList source={licenses} updateList={setLicenses} setEditMode={setEditMode} />
-                : <div className="block-header">Ліцензій підприємство ще не отримувало</div>
-              }
+              <LicensesList source={licenses} updateList={setLicenses} setEditMode={setEditMode} />
             </TabPanel>
             <TabPanel value={value} index={5}>
-              <HeadsList source={employees} role={true} sequr={true} />
+              <HeadsList source={employees} enterprId={params.id} personType={3}
+                updateList={setEmployees} setEditMode={setEditMode} />
             </TabPanel>
             <TabPanel value={value} index={6}>
-              {objects.length > 0
-                ? <ObjectsList source={objects} />
-                : <div className="block-header">Об'єктів під охороною підприємства на даний час немає</div>
-              }
+              <ObjectsList source={objects} />
             </TabPanel>
             <TabPanel value={value} index={7}>
-              {checks.length > 0
-                ? <CheckList source={checks} updateList={setChecks} setEditMode={setEditMode} />
-                : <div className="block-header">Перевірок діяльності підприємства не було</div>
-              }
+              <CheckList source={checks} enterprId={params.id} updateList={setChecks} setEditMode={setEditMode} />
             </TabPanel>
           </div>
         : <Error />

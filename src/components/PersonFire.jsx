@@ -7,11 +7,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import { toast } from 'react-toastify';
 
-export default function PersonFire({ firePerson, setFirePerson, role, updateList, editor }) {
+export default function PersonFire(props) {
   const [dateExit, setDateExit] = useState(null);
 
   const handleCancel = () => {
-    setFirePerson(null);
+    props.setFirePerson(null);
     setDateExit(null);
   };
 
@@ -20,16 +20,17 @@ export default function PersonFire({ firePerson, setFirePerson, role, updateList
     if (fireDateISO > checkDate(new Date(), "").split(".").reverse().join("-")) {
       toast.warn("Ви вказали дату, яка ще не настала!")
     } else {
-      if (fireDateISO < (role ? firePerson.DateStartWork : firePerson.DateEnter)) {
-        toast.warn(role ? "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!" :
-          "Вивести особу зі складу засновників раніше, ніж вона стала співзасновником, неможливо!");
+      if (fireDateISO < props.firePerson.EnterDate) {
+        toast.warn(props.personType === 1
+          ? "Вивести особу зі складу засновників раніше, ніж вона стала співзасновником, неможливо!"
+          : "Звільнити особу раніше, ніж вона розпочала працювати, неможливо!");
       } else {
         handleCancel();
         const values = {};
-        values.role = role;
+        values.personType = props.personType;
         values.date = fireDateISO;
-        values.id = firePerson.Id;
-        values.editor = editor;
+        values.id = props.firePerson.Id;
+        values.editor = props.editor;
         await axios.patch("/peoples/exit", values)
           .then(res => {
             toast.success(res.data);
@@ -37,9 +38,13 @@ export default function PersonFire({ firePerson, setFirePerson, role, updateList
           .catch(err => {
             toast.error(err.response.data);
           });
-        await axios.get((role ? "/heads/" : "/founders/") + firePerson.Enterprise)
+        await axios.get((props.personType === 1
+          ? "/founders/"
+          : props.personType === 2
+            ? "/heads/"
+            : "/employees/") + props.firePerson.Enterprise)
           .then(res => {
-            updateList(res.data);
+            props.updateList(res.data);
           })
           .catch(err => {
             toast.error(err.response.data);
@@ -52,10 +57,10 @@ export default function PersonFire({ firePerson, setFirePerson, role, updateList
     <Dialog
       sx={{ '& .MuiDialog-paper': { width: '80%' } }}
       maxWidth="xs"
-      open={Boolean(firePerson)}
+      open={Boolean(props.firePerson)}
     >
       <DialogTitle>
-        Вкажіть дату {role ? "звільнення з посади" : "виведення зі складу засновників"}
+        Вкажіть дату {props.personType === 1 ? "виведення зі складу засновників" : "звільнення з посади"}
       </DialogTitle>
       <DialogContent>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">

@@ -12,7 +12,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import axios from '../axios';
 import { toast } from "react-toastify";
 
-export default function OrdersListItem({ order, heads, setEditMode, setEditOrder, setChangeOrderState, setValue, setOpenDialog }) {
+export default function OrdersListItem({ order, heads, setEditMode, setEditOrder, setChangeOrderState, setValue, setOpenDialog, setAddNewOrder }) {
   const { currentUser } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const orderMenuOpen = Boolean(anchorEl);
@@ -26,6 +26,7 @@ export default function OrdersListItem({ order, heads, setEditMode, setEditOrder
   const handleEdit = row => {
     setAnchorEl(null);
     if (heads.length > 0) {
+      setAddNewOrder(false);
       setEditMode(row);
       setEditOrder(row);
     }

@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
-import { workPlacesList } from "../utils/data";
+import { headPositions, employeePositions } from "../utils/data";
 import { useForm } from 'react-hook-form';
 import { Paper, TextField, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, RadioGroup, Radio, FormControlLabel, Checkbox, Alert, AlertTitle } from "@mui/material";
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
@@ -41,10 +41,10 @@ export const PersonEdit = (props) => {
       paspPlace: props.person.PaspPlace,
       osvita: props.person.Osvita,
       foto: props.person.PhotoFile,
+      enterDate: checkDate(props.person.EnterDate, ''),
+      exitDate: checkDate(props.person.ExitDate, ''),
       statutPart: props.person.StatutPart,
-      dateEnter: checkDate(props.person.DateEnter, ''),
       posada: props.person.Posada,
-      dateStartWork: checkDate(props.person.DateStartWork, ''),
       inCombination: Boolean(props.person.InCombination),
       sequrBoss: Boolean(props.person.SequrBoss)
     },
@@ -76,9 +76,9 @@ export const PersonEdit = (props) => {
     if (obj.paspPlace === '') obj.paspPlace = null;
     if (obj.osvita === '') obj.osvita = null;
     if (obj.statutPart === '') obj.statutPart = null;
-    if (props.person.DateEnter === null && !isDateValid(obj.dateEnter)) obj.dateEnter = null;
+    if (props.person.EnterDate === null && !isDateValid(obj.enterDate)) obj.enterDate = null;
+    if (props.person.ExitDate === null && !isDateValid(obj.exitDate)) obj.exitDate = null;
     if (obj.posada === '') obj.posada = null;
-    if (props.person.DateStartWork === null && !isDateValid(obj.dateStartWork)) obj.dateStartWork = null;
   }
 
   const isDataChanged = (values) => {
@@ -86,11 +86,19 @@ export const PersonEdit = (props) => {
     setValuesToNull(values);
     let dataNotChanged = 0;
     if (props.personType === 0) dataNotChanged = 1;
-    if ((checkDate(values.dateEnter, '') === checkDate(props.person.DateEnter, '') || values.dateEnter === checkDate(props.person.DateEnter, '')) &&
-      values.statutPart === props.person.StatutPart && props.personType === 1) dataNotChanged = 1;
-    if ((checkDate(values.dateStartWork, '') === checkDate(props.person.DateStartWork, '') || values.dateStartWork === checkDate(props.person.DateStartWork, '')) &&
+    if (props.personType === 1 &&
+      (checkDate(values.enterDate, '') === checkDate(props.person.EnterDate, '') || values.enterDate === checkDate(props.person.EnterDate, '')) &&
+      (checkDate(values.exitDate, '') === checkDate(props.person.ExitDate, '') || values.exitDate === checkDate(props.person.ExitDate, '')) &&
+      values.statutPart === props.person.StatutPart) dataNotChanged = 1;
+    if (props.personType === 2 &&
+      (checkDate(values.enterDate, '') === checkDate(props.person.EnterDate, '') || values.enterDate === checkDate(props.person.EnterDate, '')) &&
+      (checkDate(values.exitDate, '') === checkDate(props.person.ExitDate, '') || values.exitDate === checkDate(props.person.ExitDate, '')) &&
       values.posada === props.person.Posada && values.inCombination === Boolean(props.person.InCombination) &&
-      values.sequrBoss === Boolean(props.person.SequrBoss) && props.personType === 2) dataNotChanged = 1;
+      values.sequrBoss === Boolean(props.person.SequrBoss)) dataNotChanged = 1;
+    if (props.personType === 3 &&
+      (checkDate(values.enterDate, '') === checkDate(props.person.EnterDate, '') || values.enterDate === checkDate(props.person.EnterDate, '')) &&
+      (checkDate(values.exitDate, '') === checkDate(props.person.ExitDate, '') || values.exitDate === checkDate(props.person.ExitDate, '')) &&
+      values.posada === props.person.Posada) dataNotChanged = 1;
     if (values.fullName === props.person.Name && values.indnum === props.person.Indnum &&
       (checkDate(values.birthDate, '') === checkDate(props.person.Birth, '') || values.birthDate === checkDate(props.person.Birth, '')) &&
       values.birthPlace === props.person.BirthPlace && values.livePlace === props.person.LivePlace && values.pasport === props.person.Pasport &&
@@ -185,20 +193,23 @@ export const PersonEdit = (props) => {
       values.enterpr = props.person.Enterprise;
       if (values.foto !== fotoUrl) values.foto = fotoUrl;
       let linkToPatch = "/peoples/", linkToReload;
+      values.personType = props.personType;
       if (props.personType === 0) {
         linkToPatch += "editperson";
         linkToReload = "/peoples/";
       }
       if (props.personType === 1) {
-        values.personType = 1;
         linkToReload = "/founders/";
       }
       if (props.personType === 2) {
         if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
         values.inCombination === true ? values.inCombination = 1 : values.inCombination = 0;
         values.sequrBoss === true ? values.sequrBoss = 1 : values.sequrBoss = 0;
-        values.personType = 2;
         linkToReload = "/heads/";
+      }
+      if (props.personType === 3) {
+        if (posada.name !== undefined && values.posada !== posada.name) values.posada = posada.name;
+        linkToReload = "/employees/";
       }
       if (newPerson) {
         linkToPatch += "new";
@@ -236,7 +247,7 @@ export const PersonEdit = (props) => {
         });
     } else toast.info("Ви не зробили жодних змін у даних про особу.");
     props.setEditPerson(null);
-    if (!props.simpleEdit) props.setEditMode(null);
+    if (props.personType > 0) props.setEditMode(null);
   };
 
   const handleCancelClick = () => {
@@ -244,11 +255,11 @@ export const PersonEdit = (props) => {
     if (isDataChanged(values) > 0) {
       if (window.confirm('Увага, дані було змінено! Якщо не зберегти - зміни будуть втрачені. Впевнені, що хочете продовжити?')) {
         props.setEditPerson(null);
-        if (!props.simpleEdit) props.setEditMode(null);
+        if (props.personType > 0) props.setEditMode(null);
       }
     } else {
       props.setEditPerson(null);
-      if (!props.simpleEdit) props.setEditMode(null);
+      if (props.personType > 0) props.setEditMode(null);
     }
   }
 
@@ -305,16 +316,27 @@ export const PersonEdit = (props) => {
             <DateField
               sx={{ width: 160 }}
               label="У складі засновників з"
-              // value={dateEnter}
-              // onChange={(newValue) => setDateEnter(newValue)}
-              defaultValue={newPerson ? null : dayjs(props.person.DateEnter)}
-              {...register('dateEnter', {
+              defaultValue={newPerson ? null : dayjs(props.person.EnterDate)}
+              {...register('enterDate', {
                 required: 'вкажіть дату у форматі ДД.ММ.РРРР',
                 pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
               })}
               size="small"
             />
           </LocalizationProvider>
+          {props.person.State === 1 &&
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+              <DateField
+                sx={{ width: 120 }}
+                label="по"
+                defaultValue={dayjs(props.person.ExitDate)}
+                {...register('exitDate', {
+                  required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+                  pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+                })}
+                size="small"
+              />
+            </LocalizationProvider>}
           <TextField
             sx={{ mb: 2, width: 180 }}
             label="% у Статутному капіталі"
@@ -330,10 +352,10 @@ export const PersonEdit = (props) => {
             size="small"
           />
         </div>}
-        {props.personType === 2 && <div>
-          <div className="person-posada__edit">
+        {(props.personType === 2 || props.personType === 3) && <div>
+          <div className="person-posada__edit" style={{ marginBottom: props.personType === 3 ? "16px" : "0px" }}>
             <Autocomplete
-              sx={{ width: '100%' }}
+              sx={{ width: 320 }}
               freeSolo
               value={posada}
               onChange={(event, newValue) => {
@@ -352,7 +374,7 @@ export const PersonEdit = (props) => {
               selectOnFocus
               clearOnBlur
               handleHomeEndKeys
-              options={workPlacesList}
+              options={props.personType === 2 ? headPositions : employeePositions}
               getOptionLabel={(option) => {
                 if (typeof option === 'string') return option;
                 if (option.inputValue) return option.inputValue;
@@ -364,20 +386,31 @@ export const PersonEdit = (props) => {
             />
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
               <DateField
-                sx={{ width: 160 }}
+                sx={{ width: 120 }}
                 label="На посаді з"
-                // value={dateStartWork}
-                // onChange={(newValue) => setDateStartWork(newValue)}
-                defaultValue={newPerson ? null : dayjs(props.person.DateStartWork)}
-                {...register('dateStartWork', {
+                defaultValue={newPerson ? null : dayjs(props.person.EnterDate)}
+                {...register('enterDate', {
                   required: 'вкажіть дату у форматі ДД.ММ.РРРР',
                   pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
                 })}
                 size="small"
               />
             </LocalizationProvider>
+            {props.person.State === 1 &&
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+                <DateField
+                  sx={{ width: 120 }}
+                  label="по"
+                  defaultValue={dayjs(props.person.ExitDate)}
+                  {...register('exitDate', {
+                    required: 'вкажіть дату у форматі ДД.ММ.РРРР',
+                    pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }
+                  })}
+                  size="small"
+                />
+              </LocalizationProvider>}
           </div>
-          <div className="person-posada__edit" style={{ marginBottom: "20px" }}>
+          {props.personType === 2 && <div className="person-posada__edit" style={{ marginBottom: "20px" }}>
             <FormControlLabel label="за сумісництвом" control={
               <Checkbox
                 defaultChecked={values.inCombination}
@@ -385,14 +418,14 @@ export const PersonEdit = (props) => {
                 size="small"
               />
             } />
-            <FormControlLabel label="відповідає за напрямок охоронної діяльності" control={
+            <FormControlLabel label="особа відповідальна за напрямок охоронної діяльності" control={
               <Checkbox
                 defaultChecked={values.sequrBoss}
                 {...register('sequrBoss')}
                 size="small"
               />
             } />
-          </div>
+          </div>}
         </div>}
         <TextField
           sx={{ mb: 2 }}

@@ -4,11 +4,12 @@ import 'dayjs/locale/uk';
 import { AuthContext } from "../context/authContext";
 import { licenseTypes } from "../utils/data";
 import { Box, Button, Dialog, DialogTitle, DialogContent, TextField, MenuItem, DialogActions } from "@mui/material";
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import OrdersListItem from "./OrdersListItem";
-import { OrderEdit } from "./OrderEdit";
+import OrderEdit from "./OrderEdit";
 import axios from '../axios';
 import { toast } from "react-toastify";
 
@@ -16,6 +17,7 @@ export const OrdersList = (props) => {
   const { currentUser } = useContext(AuthContext);
   const [openDialog, setOpenDialog] = useState(0);
   const [editOrder, setEditOrder] = useState(null);
+  const [addNewOrder, setAddNewOrder] = useState(false);
   const [changeOrderState, setChangeOrderState] = useState(null);
 
   const { register, setValue, handleSubmit, formState: { errors, isValid } } = useForm({
@@ -28,6 +30,16 @@ export const OrdersList = (props) => {
     },
     mode: 'onChange'
   });
+
+  const handleButtonClick = () => {
+    setAddNewOrder(true);
+    props.setEditMode(true);
+    setEditOrder({
+      EnterpriseId: props.enterprId,
+      OrderType: 0, HumanId: 0, Category: "A+C",
+      DateZajav: null, NumZajav: null, Options: null
+    });
+  }
 
   const onSubmit = async (values) => {
     let alertText = '';
@@ -166,15 +178,23 @@ export const OrdersList = (props) => {
                 setChangeOrderState={setChangeOrderState}
                 setValue={setValue}
                 setOpenDialog={setOpenDialog}
+                setAddNewOrder={setAddNewOrder}
               />
             )}
           </tbody>
         </table>
+        {currentUser.acc > 1 && <Button
+          sx={{ ml: 3, mt: 3 }}
+          onClick={handleButtonClick}
+          variant="contained"
+          startIcon={<NoteAddIcon />}
+        >Додати нову заяву</Button>}
       </>
       : <OrderEdit
         order={editOrder}
         heads={props.heads}
         setEditOrder={setEditOrder}
+        isNewOrder={addNewOrder}
         updateList={props.updateList}
         setEditMode={props.setEditMode}
         editor={currentUser.Id}

@@ -3,22 +3,37 @@ import { checkDate, checkStatut } from "../utils/checkers";
 
 export const PlacesList = (props) => {
 
+  function setPositionText(place) {
+    let placeText;
+    if (props.personType === 1) {
+      placeText = checkStatut(place.StatutPart) + checkDate(place.EnterDate, " з ");
+    }
+    if (props.personType === 2) {
+      placeText = place.Posada;
+      if (place.InCombination) placeText += " (за сумісн.) ";
+      placeText += checkDate(place.EnterDate, " з ");
+    }
+    if (props.personType === 3) {
+      placeText = place.Posada + checkDate(place.EnterDate, " з ");
+    }
+    if (place.State === 1) placeText += checkDate(place.ExitDate, " по ");
+    return placeText;
+  }
+
   return (<>
-    <h3 className="person-header">{props.role
-      ? "Підприємства, де особа є/була керівником"
-      : props.sequr
-        ? "Підприємства, де особа є/була у числі персоналу охорони"
-        : "Підприємства, де особа є/була у складі засновників"
+    <h3 className="person-header">{props.personType === 3
+      ? "Юридичні особи, де особа є/була у числі персоналу охорони"
+      : props.personType === 2
+        ? "Юридичні особи, де особа є/була керівником"
+        : "Юридичні особи, де особа є/була у складі засновників"
     }</h3>
     <table className="data-table">
       <thead>
         <tr className="data-table__header">
-          <th>Підприємство</th>
-          <th>{props.sequr
-            ? "Посада"
-            : props.role
-              ? "Посада, дата призначення та звільнення"
-              : "Частка у Статутному капіталі, з ... по ..."}
+          <th>Назва</th>
+          <th>{props.personType === 1
+            ? "Частка у Статутному капіталі, з ... по ..."
+            : "Посада, дата призначення та звільнення"}
           </th>
         </tr>
       </thead>
@@ -26,21 +41,7 @@ export const PlacesList = (props) => {
         {props.source.map(place =>
           <tr className="data-table__item" key={place.Id}>
             <td className="data-table__person-name"><Link to={`/enterprs/${place.Enterprise}`}>{place.FullName}</Link></td>
-            <td className="data-table__person-state">{
-              props.sequr
-                ? place.Posada
-                : props.role
-                  ? place.DateOfFire === null || ''
-                    ? place.InCombination
-                      ? (place.Posada + " (за сумісн.) " + checkDate(place.DateStartWork, " з "))
-                      : (place.Posada + checkDate(place.DateStartWork, " з "))
-                    : place.InCombination
-                      ? (place.Posada + " (за сумісн.) " + checkDate(place.DateStartWork, " з ") + checkDate(place.DateOfFire, " по "))
-                      : (place.Posada + checkDate(place.DateStartWork, " з ") + checkDate(place.DateOfFire, " по "))
-                  : place.DateOfFire === null || ''
-                    ? checkStatut(place.StatutPart) + checkDate(place.DateEnter, " з ")
-                    : checkStatut(place.StatutPart) + checkDate(place.DateEnter, " з ") + checkDate(place.DateExit, " по ")}
-            </td>
+            <td className="data-table__person-state">{setPositionText(place)}</td>
           </tr>)}
       </tbody>
     </table>

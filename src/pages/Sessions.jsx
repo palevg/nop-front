@@ -23,23 +23,29 @@ export default function Sessions() {
       ? <div className="list-page">
         {loadError && <h1>Сталась помилка "{loadError}"</h1>}
         {sessions.length > 0
-          ? <div>
+          ? <>
             <h1 className="page-header__text">Сеанси роботи з реєстром</h1>
-            <div className="enterpr__header">
-              <div>Хто працював</div>
-              <div>Початок сеансу</div>
-              <div>Кінець сеансу</div>
-              <div>IP входу</div>
-            </div>
-            {sessions.map(session =>
-              <div className="enterpr__item" key={session.Id}>
-                <div>{session.UserName}</div>
-                <div>{session.DateTimeStart}</div>
-                <div>{session.DateTimeFinish}</div>
-                <div>{session.HostIP}</div>
-              </div>
-            )}
-          </div>
+            <table className='sessions-table'>
+              <thead>
+                <tr className="data-table__header">
+                  <th>Хто працював</th>
+                  <th>Початок сеансу</th>
+                  <th>Кінець сеансу</th>
+                  <th>IP входу</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map(session =>
+                  <tr key={session.Id} className="data-table__item data-table__item-border">
+                    <td className='data-table__check-type'>{session.UserName}</td>
+                    <td className='data-table__session-info'>{session.DateTimeStart}</td>
+                    <td className='data-table__session-info'>{session.DateTimeFinish}</td>
+                    <td className='data-table__session-info'>{session.HostIP}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </>
           : <h1 className="info_message">{
             isSessionsLoading
               ? "Зачекайте, йде завантаження даних..."

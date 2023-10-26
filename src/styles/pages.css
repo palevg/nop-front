@@ -65,7 +65,8 @@
     justify-content: space-between;
 }
 
-.data-table {
+.data-table,
+.sessions-table {
     width: 100%;
     border-collapse: collapse;
     border-bottom: 2px solid gray;
@@ -197,6 +198,10 @@
 .data-table__checker {
     min-width: 172px;
     text-align: left;
+}
+
+.data-table__session-info {
+    min-width: 180px;
 }
 
 /* Person page */

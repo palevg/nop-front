@@ -16,7 +16,7 @@ const checkPointsLU = (pointLicUm, pointText) => {
   return resText;
 }
 
-export default function CheckListItem({ check, setEditCheck, setEditMode }) {
+export default function CheckListItem({ check, setEditCheck, setEditMode, setAddNewCheck }) {
   const { currentUser } = useContext(AuthContext);
 
   const handleChange = (event) => {
@@ -26,6 +26,7 @@ export default function CheckListItem({ check, setEditCheck, setEditMode }) {
   }
 
   const handleEdit = row => {
+    setAddNewCheck(false);
     setEditMode(row);
     setEditCheck(row);
   }

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { checkDate, isDateValid } from "../utils/checkers";
@@ -11,9 +10,7 @@ import { DateField } from '@mui/x-date-pickers/DateField';
 import { toast } from 'react-toastify';
 import axios from '../axios';
 
-export const OrderEdit = (props) => {
-  const [valueDateZajav, setValueDateZajav] = useState(dayjs(props.order.DateZajav));
-
+export default function OrderEdit(props) {
   const { register, getValues, handleSubmit, formState: { errors, isValid } } = useForm({
     defaultValues: {
       numZajav: props.order.NumZajav,
@@ -44,8 +41,16 @@ export const OrderEdit = (props) => {
     if (values.humanId === 0) values.humanId = props.heads[0].HumanId;
     if (isDataChanged(values)) {
       values.editor = props.editor;
-      values.id = props.order.Id;
-      await axios.patch("/order/edit", values)
+      let linkToPatch = "/order/";
+      if (props.isNewOrder) {
+        values.enterprId = props.order.EnterpriseId;
+        linkToPatch += "new";
+      }
+      else {
+        values.id = props.order.Id;
+        linkToPatch += "edit";
+      }
+      await axios.patch(linkToPatch, values)
         .then(res => {
           toast.success(res.data);
         })
@@ -109,8 +114,7 @@ export const OrderEdit = (props) => {
         <DateField
           sx={{ mb: 2, mr: 2, width: 120 }}
           label="Дата заяви"
-          value={valueDateZajav}
-          onChange={(newValue) => setValueDateZajav(newValue)}
+          defaultValue={dayjs(props.order.DateZajav)}
           {...register('dateZajav', {
             required: 'вкажіть дату у форматі ДД.ММ.РРРР',
             pattern: { value: /^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)\d\d$/ }

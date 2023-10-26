@@ -8,7 +8,6 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { PersonEdit } from "./PersonEdit";
 
 export const HeadsList = (props) => {
-  const personType = props.sequr ? 0 : props.role ? 2 : 1;
   const { currentUser } = useContext(AuthContext);
   const [showFiredPeople, setShowFiredPeople] = useState(false);
   const [editPerson, setEditPerson] = useState(null);
@@ -16,20 +15,31 @@ export const HeadsList = (props) => {
   const [firePerson, setFirePerson] = useState(null);
 
   function TableHeader({ firedPeople }) {
-    return (<tr className="data-table__header">
-      <th>Прізвище, ім'я та по-батькові</th>
-      <th>{props.sequr
-        ? "Посада"
-        : props.role
-          ? firedPeople
-            ? "Посада, дата призначення та звільнення"
-            : "Посада, дата призначення"
-          : firedPeople
-            ? "Частка у Статутному капіталі, з ... по ..."
-            : "Частка у Статутному капіталі, з дати"}
-      </th>
-      {currentUser.acc > 1 && <th />}
-    </tr>)
+    return (<thead>
+      <tr className="data-table__header">
+        <th>Прізвище, ім'я та по-батькові</th>
+        <th>{props.personType === 3
+          ? "Посада"
+          : props.personType === 2
+            ? firedPeople
+              ? "Посада, дата призначення та звільнення"
+              : "Посада, дата призначення"
+            : firedPeople
+              ? "Частка у Статутному капіталі, з ... по ..."
+              : "Частка у Статутному капіталі, з дати"}
+        </th>
+        {currentUser.acc > 1 && <th />}
+      </tr>
+    </thead>)
+  }
+
+  function EmptyListNotification() {
+    return (<div className="block-header">{props.personType === 3
+      ? "Персоналу охорони у юридичної особи на даний час немає"
+      : props.personType === 2
+        ? "Керівників у юридичної особи на даний час немає"
+        : "Фізичних осіб у складі засновників немає"}
+    </div>)
   }
 
   const handleButtonClick = () => {
@@ -38,8 +48,8 @@ export const HeadsList = (props) => {
     setEditPerson({
       Name: '', Indnum: null, Birth: null, BirthPlace: null, LivePlace: null,
       Pasport: null, PaspDate: null, PaspPlace: null, Osvita: null, PhotoFile: null,
-      Enterprise: props.enterprId, StatutPart: null, DateEnter: null,
-      Posada: null, DateStartWork: null, inCombination: false, sequrBoss: false
+      Enterprise: props.enterprId, EnterDate: null, StatutPart: null,
+      Posada: null, inCombination: false, sequrBoss: false
     });
   }
 
@@ -47,7 +57,7 @@ export const HeadsList = (props) => {
     <PersonFire
       firePerson={firePerson}
       setFirePerson={setFirePerson}
-      role={props.role}
+      personType={props.personType}
       updateList={props.updateList}
       editor={currentUser.Id}
     />
@@ -55,80 +65,75 @@ export const HeadsList = (props) => {
       ? <>
         {props.source.length > 0
           ? <>
-            {!props.role && <div className="block-header">Засновники - фізичні особи:</div>}
-            <table className="data-table">
-              <thead>
+            {props.personType === 1 && props.source.filter(person => person.State === 0).length > 0 &&
+              <div className="block-header">Засновники - фізичні особи:</div>}
+            {props.source.filter(person => person.State === 0).length > 0
+              ? <table className="data-table">
                 <TableHeader firedPeople={false} />
-              </thead>
-              <tbody>
-                {props.source.filter(person => person.State === 0).map(person =>
-                  <HeadsListItem
-                    key={person.Id}
-                    person={person}
-                    role={props.role}
-                    active={true}
-                    sequr={props.sequr}
-                    setEditMode={props.setEditMode}
-                    setEditPerson={setEditPerson}
-                    setStatePersonEditing={setStatePersonEditing}
-                    setFirePerson={setFirePerson}
-                  />
-                )}
-                {showFiredPeople && <>
-                  <TableHeader firedPeople={true} />
-                  {props.source.filter(person => person.State === 1).map(person =>
+                <tbody>
+                  {props.source.filter(person => person.State === 0).map(person =>
                     <HeadsListItem
                       key={person.Id}
                       person={person}
-                      role={props.role}
-                      active={false}
-                      sequr={props.sequr}
+                      personType={props.personType}
+                      firedPeople={false}
                       setEditMode={props.setEditMode}
                       setEditPerson={setEditPerson}
                       setStatePersonEditing={setStatePersonEditing}
                       setFirePerson={setFirePerson}
                     />
                   )}
-                </>}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+              : <EmptyListNotification />}
           </>
-          : <div className="block-header">{props.sequr
-            ? "Персоналу охорони у юридичної особи на даний час немає"
-            : props.role
-              ? "Керівників у юридичної особи на даний час немає"
-              : "Фізичних осіб у складі засновників немає"}
-          </div>}
-        {currentUser.acc > 1 && <div>
-          <Button
+          : <EmptyListNotification />}
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap" }}>
+          {currentUser.acc > 1 && <Button
             sx={{ mb: 3, ml: 3, mt: 3 }}
             onClick={handleButtonClick}
             variant="contained"
             startIcon={<PersonAddIcon />}
-          >{props.sequr
+          >{props.personType === 3
             ? "Додати нового працівника охорони"
-            : props.role
+            : props.personType === 2
               ? "Додати нового керівника"
               : "Додати нового співзасновника - фізичну особу"}
-          </Button>
-        </div>}
-        {props.source.filter(person => person.State === 1).length > 0 && <FormControlLabel
-          label={props.sequr
-            ? "показати звільнених працівників охорони"
-            : props.role
-              ? "показати попередніх керівників"
-              : "показати попередніх засновників - фізичних осіб"}
-          control={<Switch
-            checked={showFiredPeople}
-            onChange={() => showFiredPeople ? setShowFiredPeople(false) : setShowFiredPeople(true)}
-            inputProps={{ 'aria-label': 'controlled' }} />}
-        />}
+          </Button>}
+          {props.source.filter(person => person.State === 1).length > 0 && <FormControlLabel
+            label={props.personType === 3
+              ? "показати звільнених працівників охорони"
+              : props.personType === 2
+                ? "показати попередніх керівників"
+                : "показати попередніх засновників - фізичних осіб"}
+            control={<Switch
+              checked={showFiredPeople}
+              onChange={() => showFiredPeople ? setShowFiredPeople(false) : setShowFiredPeople(true)}
+              inputProps={{ 'aria-label': 'controlled' }} />}
+          />}
+          {showFiredPeople && <>
+            <table className="data-table">
+              <TableHeader firedPeople={true} />
+              <tbody>
+                {props.source.filter(person => person.State === 1).map(person =>
+                  <HeadsListItem
+                    key={person.Id}
+                    person={person}
+                    personType={props.personType}
+                    firedPeople={true}
+                    setEditMode={props.setEditMode}
+                    setEditPerson={setEditPerson}
+                    setStatePersonEditing={setStatePersonEditing}
+                  />
+                )}
+              </tbody>
+            </table>
+          </>}
+        </div>
       </>
       : <PersonEdit
         person={editPerson}
-        personType={personType}
-        enterprId={props.enterprId}
-        simpleEdit={false}
+        personType={props.personType}
         setEditPerson={setEditPerson}
         updateList={props.updateList}
         setEditMode={props.setEditMode}
